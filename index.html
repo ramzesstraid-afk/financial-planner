@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Планер финансов</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0f1115;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:520px;margin:auto;min-height:100vh;padding:18px 16px 90px}
+h1{font-size:28px;margin:8px 0 4px}.muted{color:#8d93a1}.card{background:#191c23;border:1px solid #272b35;border-radius:20px;padding:18px;margin-top:14px}
+.balance{font-size:36px;font-weight:750;margin:8px 0 16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#222630;border-radius:14px;padding:12px}.label{font-size:13px;color:#969daa}.value{font-size:20px;font-weight:700;margin-top:5px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.btn{border:0;border-radius:16px;padding:16px;font-size:16px;font-weight:700;color:white}.income{background:#167c4b}.expense{background:#a93445}
+.section{font-size:19px;font-weight:700;margin:22px 2px 10px}.empty{text-align:center;padding:20px;color:#8d93a1}
+nav{position:fixed;bottom:0;left:0;right:0;background:#171a20;border-top:1px solid #282c35;display:flex;justify-content:center;gap:30px;padding:12px 8px calc(12px + env(safe-area-inset-bottom));color:#9298a5}
+nav span:first-child{color:#fff}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="muted">ФИНАНСЫ</div>
+  <h1>Планер финансов</h1>
+
+  <div class="card">
+    <div class="muted">Текущий баланс</div>
+    <div class="balance">0 ₽</div>
+    <div class="stats">
+      <div class="stat"><div class="label">Доходы</div><div class="value">0 ₽</div></div>
+      <div class="stat"><div class="label">Расходы</div><div class="value">0 ₽</div></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn income">＋ Доход</button>
+    <button class="btn expense">－ Расход</button>
+  </div>
+
+  <div class="section">Куда уходят деньги</div>
+  <div class="card empty">Пока расходов нет.<br>Добавь первую покупку — и здесь появится статистика.</div>
+
+  <div class="section">Финансовая цель</div>
+  <div class="card empty">Создай первую цель накопления.</div>
+</div>
+<nav><span>Главная</span><span>Операции</span><span>Статистика</span><span>Цели</span></nav>
+</body>
+</html>
