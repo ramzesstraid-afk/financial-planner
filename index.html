@@ -1,45 +1,2106 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Планер финансов</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0f1115;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.app{max-width:520px;margin:auto;min-height:100vh;padding:18px 16px 90px}
-h1{font-size:28px;margin:8px 0 4px}.muted{color:#8d93a1}.card{background:#191c23;border:1px solid #272b35;border-radius:20px;padding:18px;margin-top:14px}
-.balance{font-size:36px;font-weight:750;margin:8px 0 16px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#222630;border-radius:14px;padding:12px}.label{font-size:13px;color:#969daa}.value{font-size:20px;font-weight:700;margin-top:5px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.btn{border:0;border-radius:16px;padding:16px;font-size:16px;font-weight:700;color:white}.income{background:#167c4b}.expense{background:#a93445}
-.section{font-size:19px;font-weight:700;margin:22px 2px 10px}.empty{text-align:center;padding:20px;color:#8d93a1}
-nav{position:fixed;bottom:0;left:0;right:0;background:#171a20;border-top:1px solid #282c35;display:flex;justify-content:center;gap:30px;padding:12px 8px calc(12px + env(safe-area-inset-bottom));color:#9298a5}
-nav span:first-child{color:#fff}
+:root{
+    --bg:#0b0d12;
+    --card:#151820;
+    --card2:#1b1f29;
+    --text:#ffffff;
+    --muted:#8d94a3;
+    --green:#35d07f;
+    --red:#ff5364;
+    --blue:#4d8dff;
+    --yellow:#ffc857;
+    --border:#252a35;
+}
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+button,
+input,
+select{
+    font:inherit;
+}
+
+button{
+    border:0;
+    cursor:pointer;
+}
+
+.app{
+    max-width:600px;
+    margin:auto;
+    padding:18px 15px 95px;
+}
+
+/* HEADER */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.header h1{
+    margin:0;
+    font-size:25px;
+}
+
+.header p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+
+.settings{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:var(--card);
+    color:white;
+    font-size:20px;
+}
+
+/* BALANCE */
+
+.balance-card{
+    background:linear-gradient(135deg,#1b2230,#12151d);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:22px;
+    margin-bottom:14px;
+}
+
+.balance-label{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.balance{
+    font-size:34px;
+    font-weight:800;
+    margin-top:6px;
+}
+
+.balance-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:18px;
+}
+
+.income-btn,
+.expense-btn{
+    padding:14px;
+    border-radius:14px;
+    font-weight:700;
+    color:white;
+}
+
+.income-btn{
+    background:rgba(53,208,127,.15);
+    color:var(--green);
+}
+
+.expense-btn{
+    background:rgba(255,83,100,.15);
+    color:var(--red);
+}
+
+/* CARDS */
+
+.cards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.small-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:16px;
+}
+
+.small-card .label{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.small-card .value{
+    margin-top:7px;
+    font-size:19px;
+    font-weight:700;
+}
+
+.green{
+    color:var(--green);
+}
+
+.red{
+    color:var(--red);
+}
+
+.blue{
+    color:var(--blue);
+}
+
+.yellow{
+    color:var(--yellow);
+}
+
+/* PAGE */
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+.section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:20px 2px 10px;
+}
+
+.section-title h2{
+    margin:0;
+    font-size:18px;
+}
+
+.section-title span{
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* TODAY SPEND */
+
+.today-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:18px;
+}
+
+.today-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.today-number{
+    font-size:27px;
+    font-weight:800;
+}
+
+.progress{
+    height:8px;
+    background:#252a34;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:14px;
+}
+
+.progress div{
+    height:100%;
+    background:var(--blue);
+    width:0%;
+    border-radius:10px;
+}
+
+/* OPERATIONS */
+
+.operation{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:17px;
+    padding:14px;
+    margin-bottom:9px;
+}
+
+.operation-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+}
+
+.operation-icon{
+    width:42px;
+    height:42px;
+    border-radius:13px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:var(--card2);
+    font-size:19px;
+    flex-shrink:0;
+}
+
+.operation-info{
+    min-width:0;
+}
+
+.operation-title{
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.operation-category{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:3px;
+}
+
+.operation-amount{
+    font-weight:800;
+    white-space:nowrap;
+}
+
+.empty{
+    text-align:center;
+    color:var(--muted);
+    padding:25px 10px;
+}
+
+/* CATEGORY */
+
+.category-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:15px;
+    margin-bottom:9px;
+}
+
+.category-head{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:9px;
+}
+
+.category-name{
+    font-weight:600;
+}
+
+.category-value{
+    font-weight:700;
+}
+
+.category-line{
+    height:7px;
+    background:#252a34;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.category-line div{
+    height:100%;
+    width:0%;
+    background:var(--blue);
+    border-radius:10px;
+}
+
+/* GOALS */
+
+.goal{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:17px;
+    margin-bottom:10px;
+}
+
+.goal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.goal-name{
+    font-size:16px;
+    font-weight:700;
+}
+
+.goal-percent{
+    color:var(--green);
+    font-weight:700;
+}
+
+.goal-money{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:5px;
+}
+
+.goal-progress{
+    height:9px;
+    background:#272c37;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:13px;
+}
+
+.goal-progress div{
+    height:100%;
+    background:var(--green);
+    border-radius:10px;
+}
+
+.add-goal{
+    width:100%;
+    padding:15px;
+    border-radius:15px;
+    background:var(--card2);
+    color:white;
+    font-weight:700;
+    border:1px dashed #39404e;
+}
+
+/* STATS */
+
+.stat-box{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:19px;
+    padding:18px;
+    margin-bottom:10px;
+}
+
+.stat-row{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 0;
+    border-bottom:1px solid var(--border);
+}
+
+.stat-row:last-child{
+    border-bottom:0;
+}
+
+/* NAV */
+
+.bottom-nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    max-width:600px;
+    margin:auto;
+    background:rgba(13,15,21,.96);
+    backdrop-filter:blur(15px);
+    border-top:1px solid var(--border);
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+    z-index:20;
+}
+
+.nav-btn{
+    background:none;
+    color:var(--muted);
+    padding:7px 3px;
+    font-size:10px;
+}
+
+.nav-btn .icon{
+    display:block;
+    font-size:21px;
+    margin-bottom:3px;
+}
+
+.nav-btn.active{
+    color:white;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.72);
+    z-index:100;
+    align-items:flex-end;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:100%;
+    max-width:600px;
+    margin:auto auto 0;
+    background:#151820;
+    border-radius:25px 25px 0 0;
+    padding:22px 18px calc(22px + env(safe-area-inset-bottom));
+    border-top:1px solid #292f3b;
+}
+
+.modal-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.modal-title h3{
+    margin:0;
+    font-size:21px;
+}
+
+.close{
+    width:36px;
+    height:36px;
+    border-radius:12px;
+    background:#252a34;
+    color:white;
+    font-size:18px;
+}
+
+.field{
+    margin-bottom:13px;
+}
+
+.field label{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:7px;
+}
+
+.field input,
+.field select{
+    width:100%;
+    padding:14px;
+    border-radius:13px;
+    border:1px solid #303642;
+    background:#0f1218;
+    color:white;
+    outline:none;
+}
+
+.save-btn{
+    width:100%;
+    padding:15px;
+    border-radius:15px;
+    background:var(--blue);
+    color:white;
+    font-weight:800;
+    margin-top:5px;
+}
+
+/* CALENDAR */
+
+.calendar{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:15px;
+}
+
+.calendar-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.calendar-head button{
+    background:var(--card2);
+    color:white;
+    width:35px;
+    height:35px;
+    border-radius:10px;
+}
+
+.calendar-title{
+    font-weight:700;
+}
+
+.calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:5px;
+}
+
+.weekday{
+    text-align:center;
+    color:var(--muted);
+    font-size:10px;
+    padding-bottom:5px;
+}
+
+.day{
+    min-height:42px;
+    border-radius:10px;
+    background:#10131a;
+    padding:6px;
+    font-size:11px;
+    position:relative;
+}
+
+.day.today{
+    outline:1px solid var(--blue);
+}
+
+.day.income::after,
+.day.expense::after{
+    content:"";
+    position:absolute;
+    bottom:4px;
+    left:50%;
+    transform:translateX(-50%);
+    width:5px;
+    height:5px;
+    border-radius:50%;
+}
+
+.day.income::after{
+    background:var(--green);
+}
+
+.day.expense::after{
+    background:var(--red);
+}
+
+/* RESPONSIVE */
+
+@media(max-width:380px){
+    .balance{
+        font-size:29px;
+    }
+
+    .app{
+        padding-left:12px;
+        padding-right:12px;
+    }
+}
 </style>
 </head>
+
 <body>
+
 <div class="app">
-  <div class="muted">ФИНАНСЫ</div>
-  <h1>Планер финансов</h1>
 
-  <div class="card">
-    <div class="muted">Текущий баланс</div>
-    <div class="balance">0 ₽</div>
-    <div class="stats">
-      <div class="stat"><div class="label">Доходы</div><div class="value">0 ₽</div></div>
-      <div class="stat"><div class="label">Расходы</div><div class="value">0 ₽</div></div>
+    <!-- HEADER -->
+    <div class="header">
+        <div>
+            <h1>Планер финансов</h1>
+            <p id="currentDate">Сегодня</p>
+        </div>
+
+        <button class="settings" onclick="showSettings()">⚙️</button>
     </div>
-  </div>
 
-  <div class="actions">
-    <button class="btn income">＋ Доход</button>
-    <button class="btn expense">－ Расход</button>
-  </div>
 
-  <div class="section">Куда уходят деньги</div>
-  <div class="card empty">Пока расходов нет.<br>Добавь первую покупку — и здесь появится статистика.</div>
+    <!-- ================= ГЛАВНАЯ ================= -->
 
-  <div class="section">Финансовая цель</div>
-  <div class="card empty">Создай первую цель накопления.</div>
+    <section id="home" class="page active">
+
+        <div class="balance-card">
+
+            <div class="balance-label">Текущий баланс</div>
+
+            <div class="balance" id="balance">
+                0 ₽
+            </div>
+
+            <div class="balance-actions">
+
+                <button class="income-btn" onclick="openOperation('income')">
+                    ＋ Доход
+                </button>
+
+                <button class="expense-btn" onclick="openOperation('expense')">
+                    − Расход
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="cards">
+
+            <div class="small-card">
+                <div class="label">Доходы</div>
+                <div class="value green" id="incomeTotal">0 ₽</div>
+            </div>
+
+            <div class="small-card">
+                <div class="label">Расходы</div>
+                <div class="value red" id="expenseTotal">0 ₽</div>
+            </div>
+
+        </div>
+
+
+        <div class="section-title">
+            <h2>Можно потратить сегодня</h2>
+            <span id="daysLeftText"></span>
+        </div>
+
+        <div class="today-card">
+
+            <div class="today-top">
+
+                <div>
+                    <div class="balance-label">
+                        Рекомендуемый лимит
+                    </div>
+
+                    <div class="today-number" id="dailyLimit">
+                        0 ₽
+                    </div>
+                </div>
+
+                <div class="blue" style="font-size:26px;">
+                    💰
+                </div>
+
+            </div>
+
+            <div class="progress">
+                <div id="dailyProgress"></div>
+            </div>
+
+        </div>
+
+
+        <div class="section-title">
+            <h2>Последние операции</h2>
+            <span>Сегодня</span>
+        </div>
+
+        <div id="homeOperations"></div>
+
+
+        <div class="section-title">
+            <h2>Финансовые цели</h2>
+            <span>Мои цели</span>
+        </div>
+
+        <div id="homeGoals"></div>
+
+    </section>
+
+
+    <!-- ================= ОПЕРАЦИИ ================= -->
+
+    <section id="operations" class="page">
+
+        <div class="section-title">
+            <h2>Операции</h2>
+            <span id="operationsCount">0</span>
+        </div>
+
+        <div id="allOperations"></div>
+
+    </section>
+
+
+    <!-- ================= СТАТИСТИКА ================= -->
+
+    <section id="statistics" class="page">
+
+        <div class="section-title">
+            <h2>Статистика</h2>
+            <span>Текущий месяц</span>
+        </div>
+
+
+        <div class="stat-box">
+
+            <div class="stat-row">
+                <span>Всего доходов</span>
+                <strong class="green" id="statsIncome">0 ₽</strong>
+            </div>
+
+            <div class="stat-row">
+                <span>Всего расходов</span>
+                <strong class="red" id="statsExpense">0 ₽</strong>
+            </div>
+
+            <div class="stat-row">
+                <span>Разница</span>
+                <strong id="statsDifference">0 ₽</strong>
+            </div>
+
+            <div class="stat-row">
+                <span>Операций</span>
+                <strong id="statsOperations">0</strong>
+            </div>
+
+        </div>
+
+
+        <div class="section-title">
+            <h2>Куда уходят деньги</h2>
+        </div>
+
+        <div id="categoryStats"></div>
+
+
+        <div class="section-title">
+            <h2>Финансовый календарь</h2>
+        </div>
+
+        <div class="calendar">
+
+            <div class="calendar-head">
+
+                <button onclick="changeMonth(-1)">‹</button>
+
+                <div class="calendar-title" id="calendarTitle"></div>
+
+                <button onclick="changeMonth(1)">›</button>
+
+            </div>
+
+            <div class="calendar-grid" id="calendar"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= ЦЕЛИ ================= -->
+
+    <section id="goals" class="page">
+
+        <div class="section-title">
+            <h2>Финансовые цели</h2>
+            <span id="goalsCount">0</span>
+        </div>
+
+        <div id="goalsList"></div>
+
+        <button class="add-goal" onclick="openGoalModal()">
+            ＋ Добавить финансовую цель
+        </button>
+
+    </section>
+
 </div>
-<nav><span>Главная</span><span>Операции</span><span>Статистика</span><span>Цели</span></nav>
+
+
+<!-- ================= НИЖНЕЕ МЕНЮ ================= -->
+
+<nav class="bottom-nav">
+
+    <button class="nav-btn active" onclick="showPage('home',this)">
+        <span class="icon">⌂</span>
+        Главная
+    </button>
+
+    <button class="nav-btn" onclick="showPage('operations',this)">
+        <span class="icon">↕</span>
+        Операции
+    </button>
+
+    <button class="nav-btn" onclick="showPage('statistics',this)">
+        <span class="icon">▥</span>
+        Статистика
+    </button>
+
+    <button class="nav-btn" onclick="showPage('goals',this)">
+        <span class="icon">🎯</span>
+        Цели
+    </button>
+
+</nav>
+
+
+<!-- ================= МОДАЛЬНОЕ ОКНО ОПЕРАЦИИ ================= -->
+
+<div class="modal" id="operationModal">
+
+    <div class="modal-box">
+
+        <div class="modal-title">
+
+            <h3 id="operationTitle">
+                Новый расход
+            </h3>
+
+            <button class="close" onclick="closeOperation()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="field">
+
+            <label>Сумма</label>
+
+            <input
+                id="operationAmount"
+                type="number"
+                inputmode="decimal"
+                placeholder="Например: 250"
+            >
+
+        </div>
+
+
+        <div class="field">
+
+            <label>Куда / откуда</label>
+
+            <input
+                id="operationDescription"
+                type="text"
+                placeholder="Например: Развлечение с друзьями"
+            >
+
+        </div>
+
+
+        <div class="field">
+
+            <label>Категория</label>
+
+            <select id="operationCategory">
+
+                <option value="Еда">🍔 Еда</option>
+                <option value="Продукты">🛒 Продукты</option>
+                <option value="Транспорт">🚗 Транспорт</option>
+                <option value="Развлечения">🎮 Развлечения</option>
+                <option value="Одежда">👕 Одежда</option>
+                <option value="Жильё">🏠 Жильё</option>
+                <option value="Здоровье">💊 Здоровье</option>
+                <option value="Покупки">🛍 Покупки</option>
+                <option value="Зарплата">💼 Зарплата</option>
+                <option value="Другое">📦 Другое</option>
+
+            </select>
+
+        </div>
+
+
+        <button class="save-btn" onclick="saveOperation()">
+            Сохранить операцию
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ================= МОДАЛЬНОЕ ОКНО ЦЕЛИ ================= -->
+
+<div class="modal" id="goalModal">
+
+    <div class="modal-box">
+
+        <div class="modal-title">
+
+            <h3>Новая цель</h3>
+
+            <button class="close" onclick="closeGoalModal()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="field">
+
+            <label>Название цели</label>
+
+            <input
+                id="goalName"
+                type="text"
+                placeholder="Например: Мотоцикл"
+            >
+
+        </div>
+
+
+        <div class="field">
+
+            <label>Сколько нужно</label>
+
+            <input
+                id="goalAmount"
+                type="number"
+                inputmode="decimal"
+                placeholder="300000"
+            >
+
+        </div>
+
+
+        <div class="field">
+
+            <label>Уже накоплено</label>
+
+            <input
+                id="goalSaved"
+                type="number"
+                inputmode="decimal"
+                placeholder="85000"
+            >
+
+        </div>
+
+
+        <button class="save-btn" onclick="saveGoal()">
+            Создать цель
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   TELEGRAM
+========================================= */
+
+const tg = window.Telegram && window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+}
+
+
+/* =========================================
+   DATA
+========================================= */
+
+let operations = [];
+let goals = [];
+
+try{
+    operations = JSON.parse(
+        localStorage.getItem("financePlannerOperations") || "[]"
+    );
+
+    goals = JSON.parse(
+        localStorage.getItem("financePlannerGoals") || "[]"
+    );
+
+}catch(e){
+    operations = [];
+    goals = [];
+}
+
+
+let operationType = "expense";
+
+let calendarDate = new Date();
+
+
+/* =========================================
+   STORAGE
+========================================= */
+
+function saveData(){
+
+    localStorage.setItem(
+        "financePlannerOperations",
+        JSON.stringify(operations)
+    );
+
+    localStorage.setItem(
+        "financePlannerGoals",
+        JSON.stringify(goals)
+    );
+}
+
+
+/* =========================================
+   FORMAT
+========================================= */
+
+function rub(value){
+
+    return Number(value || 0).toLocaleString(
+        "ru-RU",
+        {
+            maximumFractionDigits:0
+        }
+    ) + " ₽";
+
+}
+
+
+function esc(value){
+
+    return String(value || "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================
+   DATE
+========================================= */
+
+function todayString(){
+
+    const d = new Date();
+
+    return d.toISOString().split("T")[0];
+
+}
+
+
+function formatDate(date){
+
+    return new Date(date).toLocaleDateString(
+        "ru-RU",
+        {
+            day:"2-digit",
+            month:"2-digit",
+            year:"numeric"
+        }
+    );
+
+}
+
+
+function formatTime(date){
+
+    return new Date(date).toLocaleTimeString(
+        "ru-RU",
+        {
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    );
+
+}
+
+
+/* =========================================
+   PAGE NAVIGATION
+========================================= */
+
+function showPage(id, button){
+
+    document.querySelectorAll(".page")
+        .forEach(page => page.classList.remove("active"));
+
+    const target = document.getElementById(id);
+
+    if(target){
+        target.classList.add("active");
+    }
+
+    document.querySelectorAll(".nav-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    if(button){
+        button.classList.add("active");
+    }
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+    if(id === "statistics"){
+        renderCalendar();
+    }
+
+}
+
+
+/* =========================================
+   OPERATION MODAL
+========================================= */
+
+function openOperation(type){
+
+    operationType = type;
+
+    const modal = document.getElementById("operationModal");
+
+    const title = document.getElementById("operationTitle");
+
+    if(type === "income"){
+        title.textContent = "Новый доход";
+    }else{
+        title.textContent = "Новый расход";
+    }
+
+    document.getElementById("operationAmount").value = "";
+    document.getElementById("operationDescription").value = "";
+
+    modal.classList.add("show");
+
+}
+
+
+function closeOperation(){
+
+    document
+        .getElementById("operationModal")
+        .classList.remove("show");
+
+}
+
+
+function saveOperation(){
+
+    const amount = Number(
+        document.getElementById("operationAmount").value
+    );
+
+    const description =
+        document.getElementById("operationDescription").value.trim();
+
+    const category =
+        document.getElementById("operationCategory").value;
+
+
+    if(!amount || amount <= 0){
+
+        alert("Введите сумму.");
+
+        return;
+    }
+
+
+    if(!description){
+
+        alert("Напишите, куда или откуда деньги.");
+
+        return;
+    }
+
+
+    const operation = {
+
+        id:Date.now(),
+
+        type:operationType,
+
+        amount:amount,
+
+        description:description,
+
+        category:category,
+
+        date:new Date().toISOString(),
+
+        day:todayString()
+
+    };
+
+
+    operations.unshift(operation);
+
+    saveData();
+
+    closeOperation();
+
+    render();
+
+}
+
+
+/* =========================================
+   GOALS
+========================================= */
+
+function openGoalModal(){
+
+    document.getElementById("goalName").value = "";
+    document.getElementById("goalAmount").value = "";
+    document.getElementById("goalSaved").value = "";
+
+    document
+        .getElementById("goalModal")
+        .classList.add("show");
+
+}
+
+
+function closeGoalModal(){
+
+    document
+        .getElementById("goalModal")
+        .classList.remove("show");
+
+}
+
+
+function saveGoal(){
+
+    const name =
+        document.getElementById("goalName").value.trim();
+
+    const amount =
+        Number(document.getElementById("goalAmount").value);
+
+    const saved =
+        Number(document.getElementById("goalSaved").value || 0);
+
+
+    if(!name){
+
+        alert("Введите название цели.");
+
+        return;
+    }
+
+
+    if(!amount || amount <= 0){
+
+        alert("Введите сумму цели.");
+
+        return;
+    }
+
+
+    if(saved < 0 || saved > amount){
+
+        alert("Проверьте сумму накоплений.");
+
+        return;
+    }
+
+
+    goals.push({
+
+        id:Date.now(),
+
+        name:name,
+
+        amount:amount,
+
+        saved:saved
+
+    });
+
+
+    saveData();
+
+    closeGoalModal();
+
+    render();
+
+}
+
+
+/* =========================================
+   CALCULATIONS
+========================================= */
+
+function getIncome(){
+
+    return operations
+        .filter(x => x.type === "income")
+        .reduce((sum,x) => sum + Number(x.amount),0);
+
+}
+
+
+function getExpenses(){
+
+    return operations
+        .filter(x => x.type === "expense")
+        .reduce((sum,x) => sum + Number(x.amount),0);
+
+}
+
+
+function getBalance(){
+
+    return getIncome() - getExpenses();
+
+}
+
+
+/* =========================================
+   DAYS
+========================================= */
+
+function getDaysLeft(){
+
+    const now = new Date();
+
+    const last = new Date(
+        now.getFullYear(),
+        now.getMonth()+1,
+        0
+    );
+
+    return Math.max(
+        1,
+        last.getDate() - now.getDate() + 1
+    );
+
+}
+
+
+/* =========================================
+   RENDER MAIN
+========================================= */
+
+function render(){
+
+    const income = getIncome();
+
+    const expenses = getExpenses();
+
+    const balance = income - expenses;
+
+
+    document.getElementById("balance").textContent =
+        rub(balance);
+
+    document.getElementById("incomeTotal").textContent =
+        rub(income);
+
+    document.getElementById("expenseTotal").textContent =
+        rub(expenses);
+
+
+    const days = getDaysLeft();
+
+    const available = Math.max(
+        0,
+        balance
+    );
+
+    const dailyLimit =
+        available > 0
+            ? available / days
+            : 0;
+
+
+    document.getElementById("dailyLimit").textContent =
+        rub(dailyLimit);
+
+    document.getElementById("daysLeftText").textContent =
+        days + " дн.";
+
+
+    const todayExpenses =
+        operations
+            .filter(x =>
+                x.type === "expense" &&
+                x.day === todayString()
+            )
+            .reduce((sum,x) => sum + Number(x.amount),0);
+
+
+    let progress = 0;
+
+    if(dailyLimit > 0){
+        progress =
+            Math.min(
+                100,
+                (todayExpenses / dailyLimit) * 100
+            );
+    }
+
+
+    document.getElementById("dailyProgress")
+        .style.width = progress + "%";
+
+
+    renderHomeOperations();
+
+    renderAllOperations();
+
+    renderGoals();
+
+    renderHomeGoals();
+
+    renderCategoryStats();
+
+    renderStats();
+
+    updateDate();
+
+    renderCalendar();
+
+}
+
+
+/* =========================================
+   HOME OPERATIONS
+========================================= */
+
+function renderHomeOperations(){
+
+    const box =
+        document.getElementById("homeOperations");
+
+
+    const list =
+        operations.slice(0,5);
+
+
+    if(list.length === 0){
+
+        box.innerHTML =
+            `<div class="empty">
+                Пока операций нет
+            </div>`;
+
+        return;
+    }
+
+
+    box.innerHTML =
+        list.map(operationHTML).join("");
+
+}
+
+
+/* =========================================
+   ALL OPERATIONS
+========================================= */
+
+function renderAllOperations(){
+
+    const box =
+        document.getElementById("allOperations");
+
+
+    document.getElementById("operationsCount")
+        .textContent = operations.length;
+
+
+    if(operations.length === 0){
+
+        box.innerHTML =
+            `<div class="empty">
+                Здесь появятся все ваши операции
+            </div>`;
+
+        return;
+    }
+
+
+    box.innerHTML =
+        operations.map(operationHTML).join("");
+
+}
+
+
+/* =========================================
+   OPERATION HTML
+========================================= */
+
+function operationHTML(op){
+
+    const income =
+        op.type === "income";
+
+
+    const icon =
+        income ? "💰" : "💸";
+
+
+    const sign =
+        income ? "+" : "−";
+
+
+    const color =
+        income ? "green" : "red";
+
+
+    return `
+
+        <div class="operation">
+
+            <div class="operation-left">
+
+                <div class="operation-icon">
+                    ${icon}
+                </div>
+
+                <div class="operation-info">
+
+                    <div class="operation-title">
+                        ${esc(op.description)}
+                    </div>
+
+                    <div class="operation-category">
+                        ${esc(op.category)}
+                        ·
+                        ${formatDate(op.date)}
+                        ${formatTime(op.date)}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="operation-amount ${color}">
+                ${sign}${rub(op.amount)}
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================
+   CATEGORY STATISTICS
+========================================= */
+
+function renderCategoryStats(){
+
+    const box =
+        document.getElementById("categoryStats");
+
+
+    const expenses =
+        operations.filter(x => x.type === "expense");
+
+
+    if(expenses.length === 0){
+
+        box.innerHTML =
+            `<div class="empty">
+                Пока нет расходов
+            </div>`;
+
+        return;
+    }
+
+
+    const categories = {};
+
+
+    expenses.forEach(op => {
+
+        if(!categories[op.category]){
+            categories[op.category] = 0;
+        }
+
+        categories[op.category] += Number(op.amount);
+
+    });
+
+
+    const total =
+        expenses.reduce(
+            (sum,x) => sum + Number(x.amount),
+            0
+        );
+
+
+    const sorted =
+        Object.entries(categories)
+            .sort((a,b) => b[1] - a[1]);
+
+
+    box.innerHTML =
+        sorted.map(([name,value]) => {
+
+            const percent =
+                total > 0
+                    ? (value / total) * 100
+                    : 0;
+
+
+            return `
+
+                <div class="category-card">
+
+                    <div class="category-head">
+
+                        <div class="category-name">
+                            ${esc(name)}
+                        </div>
+
+                        <div class="category-value">
+                            ${rub(value)}
+                        </div>
+
+                    </div>
+
+                    <div class="category-line">
+                        <div style="width:${percent}%"></div>
+                    </div>
+
+                    <div style="
+                        color:var(--muted);
+                        font-size:11px;
+                        margin-top:7px;
+                    ">
+                        ${percent.toFixed(1)}% расходов
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =========================================
+   GOALS
+========================================= */
+
+function goalHTML(goal){
+
+    const percent =
+        Math.min(
+            100,
+            (goal.saved / goal.amount) * 100
+        );
+
+
+    return `
+
+        <div class="goal">
+
+            <div class="goal-head">
+
+                <div class="goal-name">
+                    🎯 ${esc(goal.name)}
+                </div>
+
+                <div class="goal-percent">
+                    ${percent.toFixed(0)}%
+                </div>
+
+            </div>
+
+            <div class="goal-money">
+
+                ${rub(goal.saved)}
+                из
+                ${rub(goal.amount)}
+
+            </div>
+
+            <div class="goal-progress">
+
+                <div style="width:${percent}%"></div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+function renderGoals(){
+
+    const box =
+        document.getElementById("goalsList");
+
+
+    document.getElementById("goalsCount")
+        .textContent = goals.length;
+
+
+    if(goals.length === 0){
+
+        box.innerHTML =
+            `<div class="empty">
+                Создайте первую финансовую цель
+            </div>`;
+
+        return;
+    }
+
+
+    box.innerHTML =
+        goals.map(goalHTML).join("");
+
+}
+
+
+function renderHomeGoals(){
+
+    const box =
+        document.getElementById("homeGoals");
+
+
+    if(goals.length === 0){
+
+        box.innerHTML =
+            `<div class="empty">
+                Пока целей нет
+            </div>`;
+
+        return;
+    }
+
+
+    box.innerHTML =
+        goals.slice(0,2)
+            .map(goalHTML)
+            .join("");
+
+}
+
+
+/* =========================================
+   STATISTICS
+========================================= */
+
+function renderStats(){
+
+    const income = getIncome();
+
+    const expenses = getExpenses();
+
+
+    document.getElementById("statsIncome")
+        .textContent = rub(income);
+
+    document.getElementById("statsExpense")
+        .textContent = rub(expenses);
+
+    document.getElementById("statsDifference")
+        .textContent = rub(income - expenses);
+
+    document.getElementById("statsOperations")
+        .textContent = operations.length;
+
+}
+
+
+/* =========================================
+   CALENDAR
+========================================= */
+
+function changeMonth(direction){
+
+    calendarDate.setMonth(
+        calendarDate.getMonth() + direction
+    );
+
+    renderCalendar();
+
+}
+
+
+function renderCalendar(){
+
+    const calendar =
+        document.getElementById("calendar");
+
+
+    if(!calendar) return;
+
+
+    const year =
+        calendarDate.getFullYear();
+
+    const month =
+        calendarDate.getMonth();
+
+
+    const monthName =
+        new Date(year,month,1)
+            .toLocaleDateString(
+                "ru-RU",
+                {
+                    month:"long",
+                    year:"numeric"
+                }
+            );
+
+
+    document.getElementById("calendarTitle")
+        .textContent =
+            monthName.charAt(0).toUpperCase()
+            + monthName.slice(1);
+
+
+    const weekdays = [
+        "Пн",
+        "Вт",
+        "Ср",
+        "Чт",
+        "Пт",
+        "Сб",
+        "Вс"
+    ];
+
+
+    let html = "";
+
+
+    weekdays.forEach(day => {
+
+        html += `
+            <div class="weekday">
+                ${day}
+            </div>
+        `;
+
+    });
+
+
+    let firstDay =
+        new Date(year,month,1).getDay();
+
+
+    if(firstDay === 0){
+        firstDay = 7;
+    }
+
+
+    for(let i=1;i<firstDay;i++){
+
+        html += `<div></div>`;
+
+    }
+
+
+    const days =
+        new Date(year,month+1,0).getDate();
+
+
+    for(let day=1;day<=days;day++){
+
+        const date =
+            `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+
+        const dayOperations =
+            operations.filter(x => {
+
+                return x.day === date;
+
+            });
+
+
+        const hasIncome =
+            dayOperations.some(
+                x => x.type === "income"
+            );
+
+
+        const hasExpense =
+            dayOperations.some(
+                x => x.type === "expense"
+            );
+
+
+        let classes = "day";
+
+
+        if(
+            date === todayString()
+        ){
+            classes += " today";
+        }
+
+
+        if(hasIncome){
+            classes += " income";
+        }
+
+
+        if(hasExpense){
+            classes += " expense";
+        }
+
+
+        html += `
+
+            <div
+                class="${classes}"
+                onclick="showDayOperations('${date}')"
+            >
+                ${day}
+            </div>
+
+        `;
+
+    }
+
+
+    calendar.innerHTML = html;
+
+}
+
+
+/* =========================================
+   CALENDAR DAY
+========================================= */
+
+function showDayOperations(date){
+
+    const list =
+        operations.filter(
+            x => x.day === date
+        );
+
+
+    if(list.length === 0){
+
+        alert(
+            "За " +
+            formatDate(date) +
+            " операций нет."
+        );
+
+        return;
+    }
+
+
+    let text =
+        "Операции за " +
+        formatDate(date) +
+        ":\n\n";
+
+
+    list.forEach(op => {
+
+        const sign =
+            op.type === "income"
+                ? "+"
+                : "−";
+
+
+        text +=
+            sign +
+            rub(op.amount) +
+            " — " +
+            op.description +
+            "\n";
+
+    });
+
+
+    alert(text);
+
+}
+
+
+/* =========================================
+   DATE HEADER
+========================================= */
+
+function updateDate(){
+
+    const date =
+        new Date().toLocaleDateString(
+            "ru-RU",
+            {
+                weekday:"long",
+                day:"numeric",
+                month:"long"
+            }
+        );
+
+
+    document.getElementById("currentDate")
+        .textContent =
+            date.charAt(0).toUpperCase()
+            + date.slice(1);
+
+}
+
+
+/* =========================================
+   SETTINGS
+========================================= */
+
+function showSettings(){
+
+    alert(
+        "Планер финансов\n\n" +
+        "Все данные пока хранятся на этом устройстве.\n\n" +
+        "Следующим этапом можно добавить:\n" +
+        "• лимиты категорий\n" +
+        "• повторяющиеся платежи\n" +
+        "• финансовый рейтинг\n" +
+        "• прогноз расходов\n" +
+        "• достижения\n" +
+        "• анализ месяца"
+    );
+
+}
+
+
+/* =========================================
+   CLOSE MODALS WHEN CLICK OUTSIDE
+========================================= */
+
+document
+    .getElementById("operationModal")
+    .addEventListener("click",function(e){
+
+        if(e.target === this){
+            closeOperation();
+        }
+
+    });
+
+
+document
+    .getElementById("goalModal")
+    .addEventListener("click",function(e){
+
+        if(e.target === this){
+            closeGoalModal();
+        }
+
+    });
+
+
+/* =========================================
+   START
+========================================= */
+
+render();
+
+</script>
+
 </body>
 </html>
