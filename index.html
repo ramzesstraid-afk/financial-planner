@@ -7,68 +7,1524 @@
 <title>Планер финансов</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#0b0d12;--card:#171b24;--line:#2b303b;--muted:#9ba3b4;--green:#35d07f;--red:#ff5969;--blue:#609cff;--purple:#c29aff}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:var(--bg);color:#fff;font:15px -apple-system,BlinkMacSystemFont,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{max-width:620px;margin:auto;padding:18px 13px 100px}header,.row,.section{display:flex;align-items:center;justify-content:space-between;gap:10px}header{margin-bottom:20px}h1{font-size:25px;margin:0}h2{font-size:19px;margin:0}h3{margin:0}.muted,.small{color:var(--muted)}.small{font-size:12px}.card,.metric,.op,.goal,.calendar{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:11px}.hero{background:linear-gradient(135deg,#202b3e,#151821);border-radius:22px;padding:21px;margin-bottom:12px}.balance{font-size:34px;font-weight:800;margin:9px 0 18px;overflow-wrap:anywhere}.label{font-size:12px;color:var(--muted)}.grid2,.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;border-radius:12px;background:#292f3b;color:white;padding:12px;font-weight:700}.greenbtn{background:#193b30;color:var(--green)}.redbtn{background:#40232c;color:var(--red)}.bluebtn{background:#315a99;color:white}.smallbtn{padding:8px 10px;font-size:12px}.metric .value{font-size:20px;font-weight:800;margin-top:7px;overflow-wrap:anywhere}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.purple{color:var(--purple)}.section{margin:22px 2px 12px}.page{display:none}.page.active{display:block}.progress{height:8px;background:#2b303b;border-radius:9px;overflow:hidden;margin-top:8px}.progress div{height:100%;background:var(--green)}.budget{margin-top:15px}.budgethead{display:flex;justify-content:space-between;gap:8px;font-size:13px}.op{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px}.opleft{display:flex;align-items:center;gap:10px;flex:1;min-width:0}.opicon{width:39px;height:39px;border-radius:12px;background:#252b37;display:grid;place-items:center;flex-shrink:0}.opdesc{font-weight:700;overflow-wrap:anywhere}.opmeta{font-size:11px;color:var(--muted);margin-top:4px}.opamount{font-weight:800;white-space:nowrap}.empty{text-align:center;color:var(--muted);padding:22px 8px}.goalmeta{font-size:12px;color:var(--muted);margin-top:6px}.goalactions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.segment{display:flex;gap:4px;background:#222733;padding:4px;border-radius:12px;margin-bottom:12px}.segment button{flex:1;background:transparent;border:0;color:var(--muted);padding:9px 4px;border-radius:9px;font-size:12px}.segment button.active{background:#414a5c;color:white}.bottom{position:fixed;bottom:0;left:0;right:0;max-width:620px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);background:#10131af5;border-top:1px solid var(--line);padding:8px 3px calc(8px + env(safe-area-inset-bottom));z-index:20}.nav{background:none;border:0;color:var(--muted);font-size:10px;padding:4px 0}.nav span{display:block;font-size:20px;margin-bottom:4px}.nav.active{color:white}.modal{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:flex-end;justify-content:center}.modal.show{display:flex}.modalbox{width:100%;max-width:620px;max-height:90dvh;overflow:auto;background:#171b24;border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}.field input,.field select{width:100%;padding:13px;background:#0d1017;color:white;border:1px solid #353b49;border-radius:11px;min-height:45px}.modalactions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.note{font-size:12px;line-height:1.5;color:var(--muted)}.pie{width:165px;height:165px;border-radius:50%;margin:12px auto}.legendrow{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding:8px 0;font-size:12px}.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}.bar{height:9px;background:#2a303b;border-radius:8px;overflow:hidden}.bar div{height:100%}.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.day{padding:7px 1px;min-height:43px;background:#10131a;color:white;border:1px solid transparent;border-radius:8px;font-size:12px}.day.selected{border-color:var(--blue);background:#263c5e}.weekday{text-align:center;color:var(--muted);font-size:10px;padding:5px 0}
-</style></head><body><div class="app">
-<header><div><h1>Планер финансов</h1><p class="small" id="headingDate"></p></div><button class="btn smallbtn" onclick="settings()">⚙️</button></header>
+:root{--bg:#0b0d12;--card:#171b24;--line:#2b303b;--muted:#9ba3b4;--text:#fff;--green:#35d07f;--red:#ff5969;--blue:#609cff;--purple:#c29aff;--orange:#ffc857;--btn:#292f3b;--input-bg:#0d1017;--input-border:#353b49;--segment:#222733;--segment-active:#414a5c;--hero1:#202b3e;--hero2:#151821;--bottom:#10131af5;--warn:#ff9f43}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{max-width:620px;margin:auto;padding:18px 13px 110px}
+header,.row,.section{display:flex;align-items:center;justify-content:space-between;gap:10px}
+header{margin-bottom:20px}h1{font-size:25px;margin:0}h2{font-size:19px;margin:0}h3{margin:0;font-size:16px}
+.muted,.small{color:var(--muted)}.small{font-size:12px}
+.card,.metric,.op,.goal,.calendar,.limit-card,.ach-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:11px}
+.hero{background:linear-gradient(135deg,var(--hero1),var(--hero2));border-radius:22px;padding:21px;margin-bottom:12px}
+.balance{font-size:34px;font-weight:800;margin:9px 0 18px;overflow-wrap:anywhere}
+.label{font-size:12px;color:var(--muted)}
+.grid2,.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:0;border-radius:12px;background:var(--btn);color:var(--text);padding:12px;font-weight:700}
+.btn:active{opacity:.75}
+.greenbtn{background:#193b30;color:var(--green)}.redbtn{background:#40232c;color:var(--red)}.bluebtn{background:#315a99;color:#fff}
+.smallbtn{padding:8px 10px;font-size:12px}.fullbtn{width:100%}
+.metric .value{font-size:20px;font-weight:800;margin-top:7px;overflow-wrap:anywhere}
+.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.purple{color:var(--purple)}.orange{color:var(--orange)}.warn{color:var(--warn)}
+.section{margin:22px 2px 12px}.page{display:none}.page.active{display:block}
+.progress{height:8px;background:#2b303b;border-radius:9px;overflow:hidden;margin-top:8px}
+.progress>div{height:100%;background:var(--green);transition:width .3s}
+.progress.warn>div{background:var(--warn)}.progress.danger>div{background:var(--red)}
+.budget{margin-top:15px}.budgethead{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.op{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px}
+.opleft{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.opicon{width:39px;height:39px;border-radius:12px;background:#252b37;display:grid;place-items:center;flex-shrink:0;font-size:18px}
+.opdesc{font-weight:700;overflow-wrap:anywhere}.opmeta{font-size:11px;color:var(--muted);margin-top:4px}
+.opamount{font-weight:800;white-space:nowrap}
+.empty{text-align:center;color:var(--muted);padding:22px 8px}
+.goalmeta{font-size:12px;color:var(--muted);margin-top:6px}
+.goalactions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.segment{display:flex;gap:4px;background:var(--segment);padding:4px;border-radius:12px;margin-bottom:12px}
+.segment button{flex:1;background:transparent;border:0;color:var(--muted);padding:9px 4px;border-radius:9px;font-size:12px}
+.segment button.active{background:var(--segment-active);color:var(--text)}
+.bottom{position:fixed;bottom:0;left:0;right:0;max-width:620px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);background:var(--bottom);border-top:1px solid var(--line);padding:8px 3px calc(8px + env(safe-area-inset-bottom));z-index:20;backdrop-filter:blur(12px)}
+.nav{background:none;border:0;color:var(--muted);font-size:10px;padding:4px 0}
+.nav span{display:block;font-size:20px;margin-bottom:4px}.nav.active{color:#fff}
+.modal{display:none;position:fixed;inset:0;background:#000b;z-index:50;align-items:flex-end;justify-content:center}
+.modal.show{display:flex}
+.modalbox{width:100%;max-width:620px;max-height:90dvh;overflow:auto;background:var(--card);border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.field{margin-bottom:13px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}
+.field input,.field select{width:100%;padding:13px;background:var(--input-bg);color:var(--text);border:1px solid var(--input-border);border-radius:11px;min-height:45px}
+.modalactions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}
+.note{font-size:12px;line-height:1.5;color:var(--muted)}
+.pie{width:165px;height:165px;border-radius:50%;margin:12px auto}
+.legendrow{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding:8px 0;font-size:12px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}
+.bar{height:9px;background:#2a303b;border-radius:8px;overflow:hidden}.bar>div{height:100%}
+.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.day{padding:6px 1px 4px;min-height:52px;background:#10131a;color:var(--text);border:1px solid transparent;border-radius:8px;font-size:12px;text-align:center}
+.day.selected{border-color:var(--blue);background:#263c5e}
+.day.big-spend{border-color:var(--red);background:#3a1a22}
+.day .day-sum{font-size:9px;margin-top:2px;font-weight:700;line-height:1.2}
+.weekday{text-align:center;color:var(--muted);font-size:10px;padding:5px 0}
+.settings-list{display:flex;flex-direction:column;gap:8px}.settings-list .btn{text-align:left;padding:14px 16px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#2a3140;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:100;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.badge{display:inline-block;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:6px}
+.badge.green{background:var(--green)}.badge.orange{background:var(--orange);color:#222}
+.score-circle{width:90px;height:90px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;font-size:28px;font-weight:800;border:4px solid var(--line)}
+.score-circle.good{border-color:var(--green);color:var(--green)}
+.score-circle.mid{border-color:var(--orange);color:var(--orange)}
+.score-circle.bad{border-color:var(--red);color:var(--red)}
+.ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ach-card{text-align:center;padding:14px 10px;margin-bottom:0;opacity:.45}
+.ach-card.unlocked{opacity:1}
+.ach-card .ach-icon{font-size:28px;margin-bottom:6px}
+.ach-card .ach-name{font-size:13px;font-weight:700}
+.ach-card .ach-desc{font-size:11px;color:var(--muted);margin-top:4px}
+.limit-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:13px}
+.limit-status{font-size:11px;margin-top:4px}
+.trend-bars{display:flex;align-items:flex-end;gap:4px;height:80px;margin:12px 0}
+.trend-bar{flex:1;background:var(--red);border-radius:4px 4px 0 0;min-height:4px}
+.trend-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div><h1>Планер финансов</h1><p class="small" id="headingDate"></p></div>
+  <button class="btn smallbtn" type="button" onclick="openSettings()">⚙️</button>
+</header>
+
 <section class="page active" id="home">
-<div class="hero"><div class="label">Текущий баланс</div><div class="balance" id="balance">0 ₽</div><div class="actions"><button class="btn greenbtn" onclick="openOp('income')">＋ Доход</button><button class="btn redbtn" onclick="openOp('expense')">− Расход</button></div></div>
-<div class="grid2"><div class="metric"><div class="label">Доходы</div><div class="value green" id="incomeTotal">0 ₽</div></div><div class="metric"><div class="label">Расходы</div><div class="value red" id="expenseTotal">0 ₽</div></div></div>
-<div class="section"><h2>Лимиты расходов</h2><span class="small">50 / 30 / 20</span></div><div class="grid2"><div class="metric"><div class="label">Можно в день</div><div class="value blue" id="daily">0 ₽</div></div><div class="metric"><div class="label">Можно в неделю</div><div class="value blue" id="weekly">0 ₽</div></div></div>
-<div class="card"><div class="label">Остаток бюджета на расходы в этом месяце</div><div class="balance" style="font-size:28px" id="budgetLeft">0 ₽</div><p class="small" id="budgetInfo"></p></div>
-<div class="section"><h2>Распределение зарплаты</h2></div><div class="card">
-<div class="budget"><div class="budgethead"><span>🏠 Необходимое · 50%</span><b id="needAmount">0 ₽</b></div><div class="progress"><div id="needBar"></div></div><p class="small" id="needText"></p></div>
-<div class="budget"><div class="budgethead"><span>🎮 Желания · 30%</span><b id="wantAmount">0 ₽</b></div><div class="progress"><div id="wantBar" style="background:var(--blue)"></div></div><p class="small" id="wantText"></p></div>
-<div class="budget"><div class="budgethead"><span>🐷 Накопления · 20%</span><b id="saveAmount">0 ₽</b></div><div class="progress"><div id="saveBar" style="background:var(--purple)"></div></div><p class="small" id="saveText"></p></div><p class="note">Учитываются зарплатные поступления текущего месяца. Лимит на расходы — 80% зарплаты за вычетом уже записанных расходов.</p></div>
-<div class="section"><h2>Последние операции</h2><button class="btn smallbtn" onclick="page('operations')">Все</button></div><div id="homeOps"></div>
-<div class="section"><h2>Финансовые цели</h2><button class="btn smallbtn" onclick="openGoal()">＋ Добавить</button></div><div id="homeGoals"></div>
-<div class="section"><h2>Прогноз расходов</h2></div><div class="card"><div class="row"><span class="label">Расходы до конца месяца</span><b id="forecastExpenses">0 ₽</b></div><p></p><div class="row"><span class="label">Прогноз остатка зарплаты</span><b id="forecastBalance">0 ₽</b></div><p class="note" id="forecastNote"></p></div>
+  <div class="hero">
+    <div class="label">Текущий баланс</div>
+    <div class="balance" id="balance">0 ₽</div>
+    <div class="actions">
+      <button class="btn greenbtn" type="button" onclick="openOp('income')">＋ Заработная плата</button>
+      <button class="btn redbtn" type="button" onclick="openOp('expense')">− Тратим деньги</button>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="metric"><div class="label">Доходы</div><div class="value green" id="incomeTotal">0 ₽</div></div>
+    <div class="metric"><div class="label">Расходы</div><div class="value red" id="expenseTotal">0 ₽</div></div>
+  </div>
+  <div class="section"><h2>Лимиты расходов</h2><span class="small" id="ratioLabel">50 / 30 / 20</span></div>
+  <div class="grid2">
+    <div class="metric"><div class="label">Можно сегодня</div><div class="value blue" id="daily">0 ₽</div></div>
+    <div class="metric"><div class="label">Можно в неделю</div><div class="value blue" id="weekly">0 ₽</div></div>
+  </div>
+  <div class="card">
+    <div class="label">Остаток бюджета на расходы в этом месяце</div>
+    <div class="balance" style="font-size:28px" id="budgetLeft">0 ₽</div>
+    <p class="small" id="budgetInfo"></p>
+  </div>
+  <div class="section"><h2>Распределение зарплаты</h2></div>
+  <div class="card">
+    <div class="budget">
+      <div class="budgethead"><span>🏠 Необходимое · <span id="needPct">50</span>%</span><b id="needAmount">0 ₽</b></div>
+      <div class="progress"><div id="needBar"></div></div>
+      <p class="small" id="needText"></p>
+    </div>
+    <div class="budget">
+      <div class="budgethead"><span>🎮 Желания · <span id="wantPct">30</span>%</span><b id="wantAmount">0 ₽</b></div>
+      <div class="progress"><div id="wantBar" style="background:var(--blue)"></div></div>
+      <p class="small" id="wantText"></p>
+    </div>
+    <div class="budget">
+      <div class="budgethead"><span>🐷 Накопления · <span id="savePct">20</span>%</span><b id="saveAmount">0 ₽</b></div>
+      <div class="progress"><div id="saveBar" style="background:var(--purple)"></div></div>
+      <p class="small" id="saveText"></p>
+    </div>
+    <p class="note">Учитываются зарплатные поступления текущего месяца. Лимит на расходы — <span id="spendPct">80</span>% зарплаты за вычетом уже записанных расходов.</p>
+  </div>
+  <div class="section"><h2>Лимиты категорий</h2><button class="btn smallbtn" type="button" onclick="openLimit()">＋ Лимит</button></div>
+  <div id="homeLimits"></div>
+  <div class="section"><h2>Последние операции</h2><button class="btn smallbtn" type="button" onclick="page('operations')">Все</button></div>
+  <div id="homeOps"></div>
+  <div class="section"><h2>Финансовые цели</h2><button class="btn smallbtn" type="button" onclick="openGoal()">＋ Добавить</button></div>
+  <div id="homeGoals"></div>
+  <div class="section"><h2>Прогноз расходов</h2></div>
+  <div class="card">
+    <div class="row"><span class="label">Если продолжить в том же темпе…</span></div>
+    <div class="row" style="margin-top:10px"><span class="label">Расходы до конца месяца</span><b id="forecastExpenses">0 ₽</b></div>
+    <p></p>
+    <div class="row"><span class="label">Прогноз остатка зарплаты</span><b id="forecastBalance">0 ₽</b></div>
+    <p class="note" id="forecastNote"></p>
+  </div>
+  <div class="section"><h2>Достижения</h2><button class="btn smallbtn" type="button" onclick="page('achievements')">Все</button></div>
+  <div id="homeAchs"></div>
 </section>
-<section class="page" id="operations"><div class="section"><h2>Операции</h2><button class="btn bluebtn smallbtn" onclick="openOp('expense')">＋ Добавить</button></div><div class="segment"><button class="active" onclick="setFilter('all',this)">Все</button><button onclick="setFilter('income',this)">Доходы</button><button onclick="setFilter('expense',this)">Расходы</button></div><div id="allOps"></div></section>
-<section class="page" id="statistics"><div class="section"><h2>Статистика</h2></div><div class="grid2"><div class="metric"><div class="label">Доходы за месяц</div><div class="value green" id="statIncome">0 ₽</div></div><div class="metric"><div class="label">Расходы за месяц</div><div class="value red" id="statExpense">0 ₽</div></div></div>
-<div class="card" style="margin-top:12px"><h3>Расходы по категориям</h3><div class="segment" style="margin-top:13px"><button id="pieButton" class="active" onclick="chart('pie')">Круговая</button><button id="barButton" onclick="chart('bar')">Столбчатая</button></div><div id="chartArea"></div></div>
-<div class="section"><h2>Сравнение месяцев</h2></div><div class="card"><div class="row"><span class="label">Текущий месяц</span><b id="thisMonth"></b></div><p></p><div class="row"><span class="label">Прошлый месяц</span><b id="lastMonth"></b></div><p class="note" id="compare"></p></div>
-<div class="section"><h2>Финансовый календарь</h2></div><div class="calendar"><div class="row" style="margin-bottom:12px"><button class="btn smallbtn" onclick="moveMonth(-1)">‹</button><b id="calTitle"></b><button class="btn smallbtn" onclick="moveMonth(1)">›</button></div><div class="calgrid" id="calendar"></div></div><div class="card" style="margin-top:12px"><div class="row"><b id="selectedTitle"></b><button class="btn bluebtn smallbtn" onclick="openOp('expense',null,selectedDay)">＋ Операция</button></div><div id="dayOps" style="margin-top:12px"></div></div></section>
-<section class="page" id="goals"><div class="section"><h2>Финансовые цели</h2><button class="btn bluebtn smallbtn" onclick="openGoal()">＋ Цель</button></div><div id="goalsList"></div></section>
-<section class="page" id="payments"><div class="section"><h2>Повторяющиеся платежи</h2><button class="btn bluebtn smallbtn" onclick="openPayment()">＋ Добавить</button></div><p class="note">При отметке оплаты будет создан расход и передвинута дата следующего платежа.</p><div id="paymentsList"></div></section>
+
+<section class="page" id="operations">
+  <div class="section"><h2>Операции</h2><button class="btn bluebtn smallbtn" type="button" onclick="openOp('expense')">＋ Добавить</button></div>
+  <div class="segment">
+    <button type="button" class="active" onclick="setFilter('all',this)">Все</button>
+    <button type="button" onclick="setFilter('income',this)">Доходы</button>
+    <button type="button" onclick="setFilter('expense',this)">Расходы</button>
+  </div>
+  <div id="allOps"></div>
+</section>
+
+<section class="page" id="statistics">
+  <div class="section"><h2>Статистика</h2></div>
+  <div class="grid2">
+    <div class="metric"><div class="label">Доходы за месяц</div><div class="value green" id="statIncome">0 ₽</div></div>
+    <div class="metric"><div class="label">Расходы за месяц</div><div class="value red" id="statExpense">0 ₽</div></div>
+  </div>
+  <div class="card" style="margin-top:12px;text-align:center">
+    <h3>Финансовая оценка месяца</h3>
+    <div class="score-circle" id="scoreCircle">—</div>
+    <p class="note" id="scoreText"></p>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Расходы по категориям</h3>
+    <div class="segment" style="margin-top:13px">
+      <button type="button" id="pieButton" class="active" onclick="chart('pie')">Круговая</button>
+      <button type="button" id="barButton" onclick="chart('bar')">Столбчатая</button>
+    </div>
+    <div id="chartArea"></div>
+  </div>
+  <div class="section"><h2>Больше всего трат</h2></div>
+  <div class="card" id="topCats"></div>
+  <div class="section"><h2>Динамика расходов (6 мес.)</h2></div>
+  <div class="card">
+    <div class="trend-bars" id="trendBars"></div>
+    <div class="trend-label" id="trendLabels"></div>
+  </div>
+  <div class="section"><h2>Сравнение месяцев</h2></div>
+  <div class="card">
+    <div class="row"><span class="label">Текущий месяц</span><b id="thisMonth"></b></div>
+    <p></p>
+    <div class="row"><span class="label">Прошлый месяц</span><b id="lastMonth"></b></div>
+    <p class="note" id="compare"></p>
+  </div>
+  <div class="section"><h2>Финансовый календарь</h2></div>
+  <div class="calendar">
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn smallbtn" type="button" onclick="moveMonth(-1)">‹</button>
+      <b id="calTitle"></b>
+      <button class="btn smallbtn" type="button" onclick="moveMonth(1)">›</button>
+    </div>
+    <div class="calgrid" id="calendar"></div>
+    <p class="note" style="margin-top:10px">Красная рамка — дни с наибольшими расходами</p>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="row">
+      <b id="selectedTitle"></b>
+      <button class="btn bluebtn smallbtn" type="button" onclick="openOp('expense',null,selectedDay)">＋ Операция</button>
+    </div>
+    <div class="row" style="margin-top:8px"><span class="small" id="daySummary"></span></div>
+    <div id="dayOps" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<section class="page" id="goals">
+  <div class="section"><h2>Финансовые цели</h2><button class="btn bluebtn smallbtn" type="button" onclick="openGoal()">＋ Цель</button></div>
+  <div id="goalsList"></div>
+</section>
+
+<section class="page" id="payments">
+  <div class="section"><h2>Повторяющиеся платежи</h2><button class="btn bluebtn smallbtn" type="button" onclick="openPayment()">＋ Добавить</button></div>
+  <p class="note">При отметке оплаты создаётся расход и сдвигается дата. Напоминания — бейджами.</p>
+  <div id="paymentsList"></div>
+  <div class="section" style="margin-top:28px"><h2>Лимиты категорий</h2><button class="btn bluebtn smallbtn" type="button" onclick="openLimit()">＋ Лимит</button></div>
+  <div id="limitsList"></div>
+</section>
+
+<section class="page" id="achievements">
+  <div class="section"><h2>Достижения</h2></div>
+  <p class="note">Открываются автоматически при выполнении условий.</p>
+  <div class="ach-grid" id="achsList"></div>
+</section>
 </div>
-<nav class="bottom"><button class="nav active" onclick="page('home',this)"><span>⌂</span>Главная</button><button class="nav" onclick="page('operations',this)"><span>↕</span>Операции</button><button class="nav" onclick="page('statistics',this)"><span>◔</span>Статистика</button><button class="nav" onclick="page('goals',this)"><span>🎯</span>Цели</button><button class="nav" onclick="page('payments',this)"><span>🔄</span>Платежи</button></nav>
-<div class="modal" id="opModal"><div class="modalbox"><div class="modalhead"><h3 id="opTitle">Операция</h3><button class="btn smallbtn" onclick="modal('opModal',false)">✕</button></div><div class="field"><label>Тип операции</label><select id="opType" onchange="categories()"><option value="income">Доход</option><option value="expense">Расход</option></select></div><div class="field"><label>Сумма, ₽</label><input id="opAmount" type="number" min="0.01" step="0.01" placeholder="70000"></div><div class="field"><label>Описание / источник</label><input id="opDesc" maxlength="120" placeholder="Заработная плата"></div><div class="field"><label>Категория</label><select id="opCategory"></select></div><div class="field"><label>Дата операции</label><input id="opDate" type="date"></div><div class="modalactions"><button class="btn bluebtn" onclick="saveOp()">Сохранить</button><button id="deleteOpBtn" class="btn redbtn" style="display:none" onclick="deleteOp()">Удалить</button></div></div></div>
-<div class="modal" id="goalModal"><div class="modalbox"><div class="modalhead"><h3 id="goalTitle">Финансовая цель</h3><button class="btn smallbtn" onclick="modal('goalModal',false)">✕</button></div><div class="field"><label>Название цели</label><input id="goalName" placeholder="Мотоцикл"></div><div class="field"><label>Необходимая сумма, ₽</label><input id="goalAmount" type="number" min="1"></div><div class="field"><label>Уже накоплено, ₽</label><input id="goalSaved" type="number" min="0"></div><div class="modalactions"><button class="btn bluebtn" onclick="saveGoal()">Сохранить</button><button id="deleteGoalBtn" class="btn redbtn" style="display:none" onclick="deleteGoal()">Удалить</button></div></div></div>
-<div class="modal" id="paymentModal"><div class="modalbox"><div class="modalhead"><h3 id="paymentTitle">Регулярный платёж</h3><button class="btn smallbtn" onclick="modal('paymentModal',false)">✕</button></div><div class="field"><label>Название</label><input id="payName" placeholder="Интернет"></div><div class="field"><label>Сумма, ₽</label><input id="payAmount" type="number" min="0.01"></div><div class="field"><label>Категория</label><select id="payCategory"><option>Жильё</option><option>Продукты</option><option>Транспорт</option><option>Здоровье</option><option>Подписки</option><option>Другое</option></select></div><div class="field"><label>Периодичность</label><select id="payFrequency"><option value="weekly">Еженедельно</option><option value="monthly" selected>Ежемесячно</option><option value="yearly">Ежегодно</option></select></div><div class="field"><label>Следующая дата оплаты</label><input id="payDate" type="date"></div><div class="modalactions"><button class="btn bluebtn" onclick="savePayment()">Сохранить</button><button id="deletePaymentBtn" class="btn redbtn" style="display:none" onclick="deletePayment()">Удалить</button></div></div></div>
+
+<nav class="bottom">
+  <button class="nav active" type="button" onclick="page('home',this)"><span>⌂</span>Главная</button>
+  <button class="nav" type="button" onclick="page('operations',this)"><span>↕</span>Операции</button>
+  <button class="nav" type="button" onclick="page('statistics',this)"><span>◔</span>Статистика</button>
+  <button class="nav" type="button" onclick="page('goals',this)"><span>🎯</span>Цели</button>
+  <button class="nav" type="button" onclick="page('payments',this)"><span>🔄</span>Платежи</button>
+</nav>
+
+<!-- Operation modal -->
+<div class="modal" id="opModal">
+  <div class="modalbox">
+    <div class="modalhead"><h3 id="opTitle">Операция</h3><button class="btn smallbtn" type="button" onclick="closeModal('opModal')">✕</button></div>
+    <div class="field"><label>Тип операции</label>
+      <select id="opType">
+        <option value="income">Заработная плата (доход)</option>
+        <option value="expense">Тратим деньги (расход)</option>
+      </select>
+    </div>
+    <div class="field"><label>Сумма, ₽</label><input id="opAmount" type="number" min="0.01" step="0.01" placeholder="70000" inputmode="decimal"></div>
+    <div class="field"><label>Описание / источник</label><input id="opDesc" maxlength="120" placeholder="Заработная плата"></div>
+    <div class="field"><label>Категория</label><select id="opCategory"></select></div>
+    <div class="field"><label>Дата операции</label><input id="opDate" type="date"></div>
+    <div class="modalactions">
+      <button class="btn bluebtn" type="button" onclick="saveOp()">Сохранить</button>
+      <button class="btn redbtn" type="button" id="deleteOpBtn" style="display:none" onclick="deleteOp()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Goal modal -->
+<div class="modal" id="goalModal">
+  <div class="modalbox">
+    <div class="modalhead"><h3 id="goalTitle">Финансовая цель</h3><button class="btn smallbtn" type="button" onclick="closeModal('goalModal')">✕</button></div>
+    <div class="field"><label>Название цели</label><input id="goalName" placeholder="Мотоцикл"></div>
+    <div class="field"><label>Необходимая сумма, ₽</label><input id="goalAmount" type="number" min="1" inputmode="decimal"></div>
+    <div class="field"><label>Уже накоплено, ₽</label><input id="goalSaved" type="number" min="0" inputmode="decimal"></div>
+    <div class="modalactions">
+      <button class="btn bluebtn" type="button" onclick="saveGoal()">Сохранить</button>
+      <button class="btn redbtn" type="button" id="deleteGoalBtn" style="display:none" onclick="deleteGoal()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment modal -->
+<div class="modal" id="paymentModal">
+  <div class="modalbox">
+    <div class="modalhead"><h3 id="paymentTitle">Регулярный платёж</h3><button class="btn smallbtn" type="button" onclick="closeModal('paymentModal')">✕</button></div>
+    <div class="field"><label>Название</label><input id="payName" placeholder="Интернет"></div>
+    <div class="field"><label>Сумма, ₽</label><input id="payAmount" type="number" min="0.01" inputmode="decimal"></div>
+    <div class="field"><label>Категория</label>
+      <select id="payCategory">
+        <option>Жильё</option><option>Продукты</option><option>Транспорт</option>
+        <option>Здоровье</option><option>Подписки</option><option>Другое</option>
+      </select>
+    </div>
+    <div class="field"><label>Периодичность</label>
+      <select id="payFrequency">
+        <option value="weekly">Еженедельно</option>
+        <option value="monthly" selected>Ежемесячно</option>
+        <option value="yearly">Ежегодно</option>
+      </select>
+    </div>
+    <div class="field"><label>Следующая дата оплаты</label><input id="payDate" type="date"></div>
+    <div class="modalactions">
+      <button class="btn bluebtn" type="button" onclick="savePayment()">Сохранить</button>
+      <button class="btn redbtn" type="button" id="deletePaymentBtn" style="display:none" onclick="deletePayment()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Limit modal -->
+<div class="modal" id="limitModal">
+  <div class="modalbox">
+    <div class="modalhead"><h3 id="limitTitle">Лимит категории</h3><button class="btn smallbtn" type="button" onclick="closeModal('limitModal')">✕</button></div>
+    <div class="field"><label>Категория</label><select id="limitCategory"></select></div>
+    <div class="field"><label>Месячный лимит, ₽</label><input id="limitAmount" type="number" min="1" inputmode="decimal" placeholder="15000"></div>
+    <div class="modalactions">
+      <button class="btn bluebtn" type="button" onclick="saveLimit()">Сохранить</button>
+      <button class="btn redbtn" type="button" id="deleteLimitBtn" style="display:none" onclick="deleteLimit()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal" id="settingsModal">
+  <div class="modalbox">
+    <div class="modalhead"><h3>Настройки</h3><button class="btn smallbtn" type="button" onclick="closeModal('settingsModal')">✕</button></div>
+    <h3 style="margin-bottom:12px">Распределение 50/30/20</h3>
+    <div class="field"><label>Необходимое, %</label><input id="setNeed" type="number" min="0" max="100" step="1"></div>
+    <div class="field"><label>Желания, %</label><input id="setWant" type="number" min="0" max="100" step="1"></div>
+    <div class="field"><label>Накопления, %</label><input id="setSave" type="number" min="0" max="100" step="1"></div>
+    <button class="btn bluebtn fullbtn" type="button" style="margin-bottom:18px" onclick="saveRatios()">Сохранить проценты</button>
+    <div class="settings-list">
+      <button class="btn" type="button" onclick="page('achievements');closeModal('settingsModal')">🏆 Достижения</button>
+      <button class="btn" type="button" onclick="exportData()">📤 Экспорт данных (JSON)</button>
+      <button class="btn" type="button" onclick="importData()">📥 Импорт данных</button>
+      <button class="btn" type="button" onclick="syncCloud()">☁️ Синхронизировать с Telegram</button>
+      <button class="btn redbtn" type="button" onclick="clearAllData()">🗑 Очистить все данные</button>
+    </div>
+    <p class="note" style="margin-top:18px">Данные сохраняются локально и (если доступно) в Telegram CloudStorage.</p>
+    <p class="note" id="storageInfo" style="margin-top:8px"></p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-"use strict";if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand()}
-const KEY="financePlannerV3";function read(k,f){try{let x=localStorage.getItem(k);return x===null?f:JSON.parse(x)}catch(e){return f}}
-let data=read(KEY,null)||{ops:read("financePlannerOperations",[]),goals:read("financePlannerGoals",[]),payments:[]};if(!Array.isArray(data.ops))data.ops=[];if(!Array.isArray(data.goals))data.goals=[];if(!Array.isArray(data.payments))data.payments=[];
-let editingOp=null,editingGoal=null,editingPayment=null,filter="all",chartType="pie",calDate=new Date(),selectedDay=today();
-const incCats=["Заработная плата","Подработка","Подарок","Инвестиции","Возврат денег","Другое"],expCats=["Продукты","Еда","Транспорт","Развлечения","Одежда","Жильё","Здоровье","Покупки","Подписки","Образование","Накопления","Другое"];
-const emoji={"Заработная плата":"💼","Подработка":"🧰","Продукты":"🛒","Еда":"🍔","Транспорт":"🚗","Развлечения":"🎮","Одежда":"👕","Жильё":"🏠","Здоровье":"💊","Покупки":"🛍️","Подписки":"🔄","Накопления":"🐷","Подарок":"🎁","Инвестиции":"📈","Возврат денег":"↩️","Образование":"📚","Другое":"📦"},colors=["#609cff","#35d07f","#c29aff","#ffc857","#ff5969","#43c4c4","#f59e72","#9aa5b5","#df7bc3","#8cbf6c"];
-function save(){try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem("financePlannerOperations",JSON.stringify(data.ops));localStorage.setItem("financePlannerGoals",JSON.stringify(data.goals))}catch(e){alert("Не удалось сохранить данные на устройстве.")}}
-function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}function fmt(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}function today(){return fmt(new Date())}function day(o){return o.day||o.date?.slice(0,10)||today()}function dateObj(s){return new Date(s+"T12:00:00")}function money(n){return (Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:2})+" ₽"}function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}function nice(s){return dateObj(s).toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"})}function mk(s){return s.slice(0,7)}function monthOps(s=today()){return data.ops.filter(o=>mk(day(o))===mk(s))}function sum(a){return a.reduce((n,x)=>n+Number(x.amount||0),0)}function incomes(a){return a.filter(x=>x.type==="income")}function expenses(a){return a.filter(x=>x.type==="expense")}function salary(){return sum(monthOps().filter(o=>o.type==="income"&&["Заработная плата","Зарплата"].includes(o.category)))}function spent(){return sum(expenses(monthOps()))}
-function page(n,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(n).classList.add("active");document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");else{let x=[...document.querySelectorAll(".nav")].find(x=>x.getAttribute("onclick")?.includes("'"+n+"'"));if(x)x.classList.add("active")}scrollTo(0,0);render()}function modal(n,s=true){document.getElementById(n).classList.toggle("show",s)}
-function categories(sel){let a=document.getElementById("opType").value==="income"?incCats:expCats;document.getElementById("opCategory").innerHTML=a.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");if(sel&&a.includes(sel))document.getElementById("opCategory").value=sel}
-function openOp(t="expense",oid=null,d=null){editingOp=oid;let o=oid===null?null:data.ops.find(x=>String(x.id)===String(oid));document.getElementById("opTitle").textContent=o?"Редактировать операцию":"Новая операция";document.getElementById("opType").value=o?o.type:t;categories(o?.category);document.getElementById("opAmount").value=o?o.amount:"";document.getElementById("opDesc").value=o?o.description:(t==="income"?"Заработная плата":"");document.getElementById("opDate").value=o?day(o):(d||selectedDay||today());document.getElementById("deleteOpBtn").style.display=o?"block":"none";modal("opModal")}
-function saveOp(){let type=opType.value,amount=Number(opAmount.value),description=opDesc.value.trim(),category=opCategory.value,d=opDate.value;if(!Number.isFinite(amount)||amount<=0)return alert("Введи сумму больше нуля.");if(!description)return alert("Введи описание операции.");if(!d)return alert("Выбери дату.");let o={id:editingOp??id(),type,amount,description,category,day:d,date:new Date(d+"T12:00:00").toISOString()},i=data.ops.findIndex(x=>String(x.id)===String(editingOp));if(i>=0)data.ops[i]=o;else data.ops.push(o);save();modal("opModal",false);render()}
-function deleteOp(){if(editingOp!==null&&confirm("Удалить операцию?")){data.ops=data.ops.filter(x=>String(x.id)!==String(editingOp));save();modal("opModal",false);render()}}
-function opHTML(o){let inc=o.type==="income";return `<div class="op"><div class="opleft" onclick="openOp('${inc?"income":"expense"}','${esc(o.id)}')"><div class="opicon">${emoji[o.category]||"💸"}</div><div><div class="opdesc">${esc(o.description)}</div><div class="opmeta">${esc(o.category)} · ${nice(day(o))}</div></div></div><div style="text-align:right"><div class="opamount ${inc?"green":"red"}">${inc?"+":"−"}${money(o.amount)}</div><button class="btn smallbtn" style="margin-top:5px" onclick="openOp('${inc?"income":"expense"}','${esc(o.id)}')">✎ Изменить</button></div></div>`}
-function setFilter(f,b){filter=f;document.querySelectorAll("#operations .segment button").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderOps()}function renderOps(){let a=[...data.ops].sort((a,b)=>day(b).localeCompare(day(a)));homeOps.innerHTML=a.slice(0,5).map(opHTML).join("")||'<div class="empty">Добавь первый доход или расход.</div>';allOps.innerHTML=a.filter(o=>filter==="all"||o.type===filter).map(opHTML).join("")||'<div class="empty">Операций пока нет.</div>'}
-function openGoal(gid=null){editingGoal=gid;let g=gid===null?null:data.goals.find(x=>String(x.id)===String(gid));goalTitle.textContent=g?"Редактировать цель":"Новая цель";goalName.value=g?g.name:"";goalAmount.value=g?g.amount:"";goalSaved.value=g?g.saved:0;deleteGoalBtn.style.display=g?"block":"none";modal("goalModal")}
-function saveGoal(){let name=goalName.value.trim(),amount=Number(goalAmount.value),saved=Number(goalSaved.value||0);if(!name)return alert("Введи название цели.");if(amount<=0)return alert("Сумма цели должна быть больше нуля.");if(saved<0||saved>amount)return alert("Проверь сумму накоплений.");let g={id:editingGoal??id(),name,amount,saved},i=data.goals.findIndex(x=>String(x.id)===String(editingGoal));if(i>=0)data.goals[i]=g;else data.goals.push(g);save();modal("goalModal",false);render()}
-function deleteGoal(){if(editingGoal!==null&&confirm("Удалить цель?")){data.goals=data.goals.filter(x=>String(x.id)!==String(editingGoal));save();modal("goalModal",false);render()}}
-function goalHTML(g){let p=Math.min(100,g.saved/g.amount*100);return `<div class="goal"><div class="row"><b>🎯 ${esc(g.name)}</b><b class="green">${p.toFixed(0)}%</b></div><p class="goalmeta">${money(g.saved)} из ${money(g.amount)} · осталось ${money(Math.max(0,g.amount-g.saved))}</p><div class="progress"><div style="width:${p}%"></div></div><div class="goalactions"><button class="btn smallbtn" onclick="openGoal('${esc(g.id)}')">✎ Редактировать</button><button class="btn greenbtn smallbtn" onclick="fundGoal('${esc(g.id)}')">＋ Пополнить</button></div></div>`}
-function fundGoal(gid){let g=data.goals.find(x=>String(x.id)===String(gid));if(!g)return;let n=Number(prompt("Сколько добавить к накоплениям?"));if(!Number.isFinite(n)||n<=0)return;g.saved=Math.min(g.amount,g.saved+n);save();render()}function renderGoals(){let h=data.goals.map(goalHTML).join("")||'<div class="empty">Пока нет целей.</div>';goalsList.innerHTML=h;homeGoals.innerHTML=data.goals.slice(0,2).map(goalHTML).join("")||'<div class="empty">Добавь финансовую цель.</div>'}
-function renderBudget(){let s=salary(),n=s*.5,w=s*.3,sv=s*.2,ex=expenses(monthOps()),ns=sum(ex.filter(o=>["Продукты","Еда","Транспорт","Жильё","Здоровье","Образование"].includes(o.category))),ws=sum(ex.filter(o=>!["Продукты","Еда","Транспорт","Жильё","Здоровье","Образование","Накопления"].includes(o.category))),days=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate()-new Date().getDate()+1,left=Math.max(0,s*.8-spent());daily.textContent=money(left/Math.max(1,days));weekly.textContent=money(left/Math.min(7,Math.max(1,days)));budgetLeft.textContent=money(left);budgetInfo.textContent=`Зарплата: ${money(s)} · расходы: ${money(spent())} · до конца месяца ${days} дн.`;needAmount.textContent=money(n);wantAmount.textContent=money(w);saveAmount.textContent=money(sv);needText.textContent=`Потрачено: ${money(ns)}`;wantText.textContent=`Потрачено: ${money(ws)}`;saveText.textContent=`Рекомендуется накопить: ${money(sv)}`;needBar.style.width=(n?Math.min(100,ns/n*100):0)+"%";wantBar.style.width=(w?Math.min(100,ws/w*100):0)+"%";let ss=sum(ex.filter(o=>o.category==="Накопления"));saveBar.style.width=(sv?Math.min(100,ss/sv*100):0)+"%"}
-function renderForecast(){let a=spent(),elapsed=new Date().getDate(),days=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate(),f=a/Math.max(1,elapsed)*days,p=salary()-f;forecastExpenses.textContent=money(f);forecastBalance.textContent=money(p);forecastNote.textContent=salary()===0?"Добавь зарплату с категорией «Заработная плата», чтобы получить прогноз.":"Оценка основана на среднем темпе расходов за этот месяц."}
-function chart(t){chartType=t;pieButton.classList.toggle("active",t==="pie");barButton.classList.toggle("active",t==="bar");renderChart()}
-function renderChart(){let o={};expenses(monthOps()).forEach(x=>o[x.category]=(o[x.category]||0)+Number(x.amount));let a=Object.entries(o).sort((x,y)=>y[1]-x[1]),total=a.reduce((s,x)=>s+x[1],0);if(!a.length){chartArea.innerHTML='<div class="empty">Добавь расходы, чтобы увидеть статистику.</div>';return}let l=a.map(([n,v],i)=>`<div class="legendrow"><span><i class="dot" style="background:${colors[i%colors.length]}"></i>${esc(n)}</span><b>${money(v)}</b></div>`).join("");if(chartType==="pie"){let p=0,st=a.map((x,i)=>{let z=p;p+=x[1]/total*100;return `${colors[i%colors.length]} ${z}% ${p}%`}).join(",");chartArea.innerHTML=`<div class="pie" style="background:conic-gradient(${st})"></div>${l}<div class="legendrow"><b>Всего</b><b>${money(total)}</b></div>`}else{let max=Math.max(...a.map(x=>x[1]));chartArea.innerHTML=a.map(([n,v],i)=>`<div style="margin:14px 0"><div class="row" style="font-size:12px;margin-bottom:6px"><span>${esc(n)}</span><b>${money(v)}</b></div><div class="bar"><div style="width:${v/max*100}%;background:${colors[i%colors.length]}"></div></div></div>`).join("")}}
-function renderStats(){let m=monthOps(),inc=sum(incomes(m)),ex=sum(expenses(m)),now=new Date(),lk=fmt(new Date(now.getFullYear(),now.getMonth()-1,1)).slice(0,7),last=sum(expenses(data.ops.filter(o=>mk(day(o))===lk)));statIncome.textContent=money(inc);statExpense.textContent=money(ex);thisMonth.textContent=money(ex);lastMonth.textContent=money(last);compare.textContent=last===0?(ex?"В прошлом месяце нет записанных расходов.":"Пока нечего сравнивать."):ex>last?`Расходы выросли на ${money(ex-last)}.`:ex<last?`Расходы снизились на ${money(last-ex)}.`:"Расходы не изменились.";renderChart()}
-function moveMonth(n){calDate=new Date(calDate.getFullYear(),calDate.getMonth()+n,1);renderCalendar()}function renderCalendar(){let y=calDate.getFullYear(),m=calDate.getMonth();calTitle.textContent=calDate.toLocaleDateString("ru-RU",{month:"long",year:"numeric"});let h=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(x=>`<div class="weekday">${x}</div>`).join(""),f=new Date(y,m,1).getDay();f=f===0?7:f;for(let i=1;i<f;i++)h+="<div></div>";for(let d=1;d<=new Date(y,m+1,0).getDate();d++){let s=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`,a=data.ops.filter(o=>day(o)===s),dots=(a.some(o=>o.type==="income")?"<i class='dot' style='background:var(--green)'></i>":"")+(a.some(o=>o.type==="expense")?"<i class='dot' style='background:var(--red)'></i>":"");h+=`<button class="day ${s===selectedDay?"selected":""}" onclick="selectDay('${s}')">${d}<div style="height:5px">${dots}</div></button>`}calendar.innerHTML=h;renderDayOps()}function selectDay(s){selectedDay=s;renderCalendar()}function renderDayOps(){selectedTitle.textContent=nice(selectedDay);dayOps.innerHTML=data.ops.filter(o=>day(o)===selectedDay).map(opHTML).join("")||'<div class="empty">Нет операций за этот день.</div>'}
-function openPayment(pid=null){editingPayment=pid;let p=pid===null?null:data.payments.find(x=>String(x.id)===String(pid));paymentTitle.textContent=p?"Изменить платёж":"Новый повторяющийся платёж";payName.value=p?p.name:"";payAmount.value=p?p.amount:"";payCategory.value=p?p.category:"Жильё";payFrequency.value=p?p.frequency:"monthly";payDate.value=p?p.nextDate:today();deletePaymentBtn.style.display=p?"block":"none";modal("paymentModal")}
-function savePayment(){let name=payName.value.trim(),amount=Number(payAmount.value),category=payCategory.value,frequency=payFrequency.value,nextDate=payDate.value;if(!name)return alert("Введи название платежа.");if(amount<=0)return alert("Проверь сумму.");if(!nextDate)return alert("Выбери дату.");let p={id:editingPayment??id(),name,amount,category,frequency,nextDate},i=data.payments.findIndex(x=>String(x.id)===String(editingPayment));if(i>=0)data.payments[i]=p;else data.payments.push(p);save();modal("paymentModal",false);render()}
-function deletePayment(){if(editingPayment!==null&&confirm("Удалить платёж?")){data.payments=data.payments.filter(x=>String(x.id)!==String(editingPayment));save();modal("paymentModal",false);render()}}
-function payNow(pid){let p=data.payments.find(x=>String(x.id)===String(pid));if(!p||!confirm(`Записать оплату ${p.name} на ${money(p.amount)}?`))return;data.ops.push({id:id(),type:"expense",amount:p.amount,description:p.name,category:p.category,day:p.nextDate,date:new Date(p.nextDate+"T12:00:00").toISOString()});let d=dateObj(p.nextDate);if(p.frequency==="weekly")d.setDate(d.getDate()+7);else if(p.frequency==="monthly")d.setMonth(d.getMonth()+1);else d.setFullYear(d.getFullYear()+1);p.nextDate=fmt(d);save();render()}
-function renderPayments(){paymentsList.innerHTML=data.payments.map(p=>`<div class="goal"><div class="row"><b>${esc(p.name)}</b><b>${money(p.amount)}</b></div><p class="goalmeta">${esc(p.category)} · ${p.frequency==="weekly"?"Еженедельно":p.frequency==="yearly"?"Ежегодно":"Ежемесячно"}</p><p class="small">Следующая оплата: ${nice(p.nextDate)}</p><div class="goalactions"><button class="btn greenbtn smallbtn" onclick="payNow('${esc(p.id)}')">✓ Оплатить</button><button class="btn smallbtn" onclick="openPayment('${esc(p.id)}')">✎ Изменить</button></div></div>`).join("")||'<div class="empty">Добавь регулярные платежи.</div>'}
-function settings(){alert("Данные сохраняются в браузере этого устройства. Для синхронизации между устройствами и уведомлений при закрытом приложении понадобится сервер.")}
-function render(){headingDate.textContent=new Date().toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});balance.textContent=money(sum(incomes(data.ops))-sum(expenses(data.ops)));incomeTotal.textContent=money(sum(incomes(data.ops)));expenseTotal.textContent=money(sum(expenses(data.ops)));renderBudget();renderOps();renderGoals();renderForecast();renderStats();renderCalendar();renderPayments()}
-opType.addEventListener("change",()=>categories());["opModal","goalModal","paymentModal"].forEach(x=>document.getElementById(x).addEventListener("click",e=>{if(e.target===e.currentTarget)modal(x,false)}));categories();save();render();
-</script></body></html>
+(function () {
+"use strict";
+
+function $(id) { return document.getElementById(id); }
+
+/* Telegram */
+var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  try { tg.disableVerticalSwipes(); } catch (e) {}
+  applyTheme();
+}
+function applyTheme() {
+  if (!tg || !tg.themeParams) return;
+  var t = tg.themeParams, r = document.documentElement;
+  if (t.bg_color) r.style.setProperty("--bg", t.bg_color);
+  if (t.secondary_bg_color) r.style.setProperty("--card", t.secondary_bg_color);
+  if (t.text_color) r.style.setProperty("--text", t.text_color);
+  if (t.hint_color) r.style.setProperty("--muted", t.hint_color);
+  if (t.button_color) r.style.setProperty("--blue", t.button_color);
+  if (t.section_separator_color) r.style.setProperty("--line", t.section_separator_color);
+}
+function haptic(type) {
+  try {
+    if (!tg || !tg.HapticFeedback) return;
+    if (type === "success") tg.HapticFeedback.notificationOccurred("success");
+    else if (type === "error") tg.HapticFeedback.notificationOccurred("error");
+    else if (type === "warning") tg.HapticFeedback.notificationOccurred("warning");
+    else tg.HapticFeedback.impactOccurred(type || "light");
+  } catch (e) {}
+}
+function toast(msg, ms) {
+  var el = $("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function () { el.classList.remove("show"); }, ms || 2200);
+}
+
+/* Storage */
+var KEY = "financePlannerV5";
+function readLocal(k, fb) {
+  try {
+    var x = localStorage.getItem(k);
+    return x === null ? fb : JSON.parse(x);
+  } catch (e) { return fb; }
+}
+function defaultData() {
+  return {
+    ops: [], goals: [], payments: [], limits: [],
+    ratios: { need: 50, want: 30, save: 20 },
+    achievements: {}, firstUse: today()
+  };
+}
+var data = readLocal(KEY, null);
+if (!data) {
+  var old = readLocal("financePlannerV4", null) || readLocal("financePlannerV3", null);
+  if (old) {
+    data = {
+      ops: old.ops || readLocal("financePlannerOperations", []),
+      goals: old.goals || readLocal("financePlannerGoals", []),
+      payments: old.payments || [],
+      limits: old.limits || [],
+      ratios: old.ratios || { need: 50, want: 30, save: 20 },
+      achievements: old.achievements || {},
+      firstUse: old.firstUse || today()
+    };
+  }
+}
+if (!data) data = defaultData();
+if (!Array.isArray(data.ops)) data.ops = [];
+if (!Array.isArray(data.goals)) data.goals = [];
+if (!Array.isArray(data.payments)) data.payments = [];
+if (!Array.isArray(data.limits)) data.limits = [];
+if (!data.ratios) data.ratios = { need: 50, want: 30, save: 20 };
+if (!data.achievements) data.achievements = {};
+if (!data.firstUse) data.firstUse = today();
+
+function save() {
+  try {
+    var str = JSON.stringify(data);
+    localStorage.setItem(KEY, str);
+    localStorage.setItem("financePlannerOperations", JSON.stringify(data.ops));
+    localStorage.setItem("financePlannerGoals", JSON.stringify(data.goals));
+    if (tg && tg.CloudStorage) {
+      tg.CloudStorage.setItem(KEY, str, function () {});
+    }
+  } catch (e) {
+    alert("Не удалось сохранить данные.");
+  }
+}
+function loadFromCloud(cb) {
+  if (!tg || !tg.CloudStorage) { cb(false); return; }
+  tg.CloudStorage.getItem(KEY, function (err, value) {
+    if (err || !value) { cb(false); return; }
+    try {
+      var p = JSON.parse(value);
+      if (p && Array.isArray(p.ops)) {
+        data = {
+          ops: p.ops || [], goals: p.goals || [], payments: p.payments || [],
+          limits: p.limits || [], ratios: p.ratios || { need: 50, want: 30, save: 20 },
+          achievements: p.achievements || {}, firstUse: p.firstUse || today()
+        };
+        save();
+        cb(true);
+        return;
+      }
+    } catch (e) {}
+    cb(false);
+  });
+}
+
+/* State */
+var editingOp = null, editingGoal = null, editingPayment = null, editingLimit = null;
+var filter = "all", chartType = "pie";
+var calDate = new Date(), selectedDay = today();
+
+var incCats = ["Заработная плата", "Подработка", "Подарок", "Инвестиции", "Возврат денег", "Другое"];
+var expCats = ["Продукты", "Еда", "Транспорт", "Развлечения", "Одежда", "Жильё", "Здоровье", "Покупки", "Подписки", "Образование", "Накопления", "Другое"];
+var needCats = ["Продукты", "Еда", "Транспорт", "Жильё", "Здоровье", "Образование"];
+var emoji = {
+  "Заработная плата": "💼", "Подработка": "🧰", "Продукты": "🛒", "Еда": "🍔",
+  "Транспорт": "🚗", "Развлечения": "🎮", "Одежда": "👕", "Жильё": "🏠",
+  "Здоровье": "💊", "Покупки": "🛍️", "Подписки": "🔄", "Накопления": "🐷",
+  "Подарок": "🎁", "Инвестиции": "📈", "Возврат денег": "↩️", "Образование": "📚", "Другое": "📦"
+};
+var colors = ["#609cff", "#35d07f", "#c29aff", "#ffc857", "#ff5969", "#43c4c4", "#f59e72", "#9aa5b5", "#df7bc3", "#8cbf6c"];
+var ACH_DEFS = [
+  { id: "first_op", icon: "✍️", name: "Первая запись", desc: "Добавь первую операцию" },
+  { id: "first_goal", icon: "🎯", name: "Цель поставлена", desc: "Создай финансовую цель" },
+  { id: "goal_done", icon: "🏆", name: "Цель достигнута", desc: "Полностью накопи на цель" },
+  { id: "budget_keeper", icon: "🛡️", name: "Хранитель бюджета", desc: "Уложись в лимит расходов" },
+  { id: "saver", icon: "🐷", name: "Копилка", desc: "Отложи в «Накопления»" },
+  { id: "week_streak", icon: "📅", name: "Неделя учёта", desc: "Записи 7 дней подряд" },
+  { id: "no_spend_day", icon: "🧘", name: "День без трат", desc: "День без расходов" },
+  { id: "ten_ops", icon: "🔟", name: "Десятка", desc: "10 операций" },
+  { id: "fifty_ops", icon: "💯", name: "Полтинник", desc: "50 операций" },
+  { id: "limit_set", icon: "📊", name: "Контроль", desc: "Установи лимит категории" },
+  { id: "payment_set", icon: "🔄", name: "Автопилот", desc: "Добавь регулярный платёж" },
+  { id: "under_budget", icon: "💚", name: "Экономист", desc: "Потрать меньше 50% бюджета" }
+];
+
+/* Helpers */
+function id() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function fmt(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function today() { return fmt(new Date()); }
+function dayOf(o) { return o.day || (o.date && o.date.slice(0, 10)) || today(); }
+function dateObj(s) { return new Date(s + "T12:00:00"); }
+function money(n) {
+  return (Number(n) || 0).toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + " ₽";
+}
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function nice(s) {
+  return dateObj(s).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+function mk(s) { return s.slice(0, 7); }
+function monthOps(s) {
+  s = s || today();
+  return data.ops.filter(function (o) { return mk(dayOf(o)) === mk(s); });
+}
+function sum(arr) {
+  return arr.reduce(function (n, x) { return n + Number(x.amount || 0); }, 0);
+}
+function incomes(arr) { return arr.filter(function (x) { return x.type === "income"; }); }
+function expenses(arr) { return arr.filter(function (x) { return x.type === "expense"; }); }
+function salary() {
+  return sum(monthOps().filter(function (o) {
+    return o.type === "income" && (o.category === "Заработная плата" || o.category === "Зарплата");
+  }));
+}
+function spent() { return sum(expenses(monthOps())); }
+function spendRatio() { return (data.ratios.need + data.ratios.want) / 100; }
+
+/* Nav & modals */
+function page(n, btn) {
+  document.querySelectorAll(".page").forEach(function (x) { x.classList.remove("active"); });
+  var el = $(n);
+  if (el) el.classList.add("active");
+  document.querySelectorAll(".nav").forEach(function (x) { x.classList.remove("active"); });
+  if (btn) btn.classList.add("active");
+  else {
+    document.querySelectorAll(".nav").forEach(function (x) {
+      if ((x.getAttribute("onclick") || "").indexOf("'" + n + "'") >= 0) x.classList.add("active");
+    });
+  }
+  window.scrollTo(0, 0);
+  haptic("light");
+  render();
+}
+window.page = page;
+
+function openModal(name) {
+  $(name).classList.add("show");
+  haptic("light");
+}
+function closeModal(name) {
+  $(name).classList.remove("show");
+}
+window.closeModal = closeModal;
+
+/* ========== OPERATIONS — edit / delete ========== */
+function fillCategories(selected) {
+  var type = $("opType").value;
+  var list = type === "income" ? incCats : expCats;
+  $("opCategory").innerHTML = list.map(function (c) {
+    return '<option value="' + esc(c) + '">' + esc(c) + "</option>";
+  }).join("");
+  if (selected && list.indexOf(selected) >= 0) $("opCategory").value = selected;
+}
+
+function openOp(type, oid, dateStr) {
+  type = type || "expense";
+  editingOp = (oid === undefined || oid === null) ? null : String(oid);
+  var o = null;
+  if (editingOp !== null) {
+    for (var i = 0; i < data.ops.length; i++) {
+      if (String(data.ops[i].id) === editingOp) { o = data.ops[i]; break; }
+    }
+  }
+  $("opTitle").textContent = o ? "Редактировать операцию" : "Новая операция";
+  $("opType").value = o ? o.type : type;
+  fillCategories(o ? o.category : null);
+  $("opAmount").value = o ? o.amount : "";
+  $("opDesc").value = o ? o.description : (type === "income" ? "Заработная плата" : "");
+  $("opDate").value = o ? dayOf(o) : (dateStr || selectedDay || today());
+  $("deleteOpBtn").style.display = o ? "block" : "none";
+  openModal("opModal");
+  setTimeout(function () { $("opAmount").focus(); }, 120);
+}
+window.openOp = openOp;
+
+function saveOp() {
+  var type = $("opType").value;
+  var amount = Number($("opAmount").value);
+  var description = $("opDesc").value.trim();
+  var category = $("opCategory").value;
+  var d = $("opDate").value;
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    haptic("error");
+    alert("Введи сумму больше нуля.");
+    return;
+  }
+  if (!description) {
+    haptic("error");
+    alert("Введи описание операции.");
+    return;
+  }
+  if (!d) {
+    haptic("error");
+    alert("Выбери дату.");
+    return;
+  }
+
+  var o = {
+    id: editingOp !== null ? editingOp : id(),
+    type: type,
+    amount: amount,
+    description: description,
+    category: category,
+    day: d,
+    date: new Date(d + "T12:00:00").toISOString()
+  };
+
+  if (editingOp !== null) {
+    var found = false;
+    for (var i = 0; i < data.ops.length; i++) {
+      if (String(data.ops[i].id) === editingOp) {
+        data.ops[i] = o;
+        found = true;
+        break;
+      }
+    }
+    if (!found) data.ops.push(o);
+  } else {
+    data.ops.push(o);
+  }
+
+  save();
+  checkAchievements();
+  closeModal("opModal");
+  haptic("success");
+  toast(editingOp !== null ? "Операция обновлена" : "Операция добавлена");
+  editingOp = null;
+  render();
+}
+window.saveOp = saveOp;
+
+function deleteOp() {
+  if (editingOp === null) return;
+  if (!confirm("Удалить операцию?")) return;
+  data.ops = data.ops.filter(function (x) { return String(x.id) !== editingOp; });
+  save();
+  checkAchievements();
+  closeModal("opModal");
+  haptic("warning");
+  toast("Операция удалена");
+  editingOp = null;
+  render();
+}
+window.deleteOp = deleteOp;
+
+function opHTML(o) {
+  var inc = o.type === "income";
+  var oid = String(o.id);
+  var t = inc ? "income" : "expense";
+  return '<div class="op">' +
+    '<div class="opleft" role="button" onclick="openOp(\'' + t + '\',\'' + esc(oid) + '\')">' +
+      '<div class="opicon">' + (emoji[o.category] || "💸") + "</div>" +
+      "<div><div class=\"opdesc\">" + esc(o.description) + "</div>" +
+      '<div class="opmeta">' + esc(o.category) + " · " + nice(dayOf(o)) + "</div></div>" +
+    "</div>" +
+    '<div style="text-align:right">' +
+      '<div class="opamount ' + (inc ? "green" : "red") + '">' + (inc ? "+" : "−") + money(o.amount) + "</div>" +
+      '<button class="btn smallbtn" type="button" style="margin-top:5px" onclick="event.stopPropagation();openOp(\'' + t + '\',\'' + esc(oid) + '\')">✎ Изменить</button>' +
+    "</div></div>";
+}
+
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll("#operations .segment button").forEach(function (x) {
+    x.classList.remove("active");
+  });
+  btn.classList.add("active");
+  haptic("light");
+  renderOps();
+}
+window.setFilter = setFilter;
+
+function renderOps() {
+  var sorted = data.ops.slice().sort(function (a, b) {
+    return dayOf(b).localeCompare(dayOf(a));
+  });
+  $("homeOps").innerHTML = sorted.slice(0, 5).map(opHTML).join("") ||
+    '<div class="empty">Добавь первый доход или расход.</div>';
+  var filtered = sorted.filter(function (o) {
+    return filter === "all" || o.type === filter;
+  });
+  $("allOps").innerHTML = filtered.map(opHTML).join("") ||
+    '<div class="empty">Операций пока нет.</div>';
+}
+
+/* ========== GOALS ========== */
+function openGoal(gid) {
+  editingGoal = (gid === undefined || gid === null) ? null : String(gid);
+  var g = null;
+  if (editingGoal !== null) {
+    for (var i = 0; i < data.goals.length; i++) {
+      if (String(data.goals[i].id) === editingGoal) { g = data.goals[i]; break; }
+    }
+  }
+  $("goalTitle").textContent = g ? "Редактировать цель" : "Новая цель";
+  $("goalName").value = g ? g.name : "";
+  $("goalAmount").value = g ? g.amount : "";
+  $("goalSaved").value = g ? g.saved : 0;
+  $("deleteGoalBtn").style.display = g ? "block" : "none";
+  openModal("goalModal");
+}
+window.openGoal = openGoal;
+
+function saveGoal() {
+  var name = $("goalName").value.trim();
+  var amount = Number($("goalAmount").value);
+  var saved = Number($("goalSaved").value || 0);
+  if (!name) { haptic("error"); alert("Введи название цели."); return; }
+  if (!(amount > 0)) { haptic("error"); alert("Сумма цели должна быть больше нуля."); return; }
+  if (saved < 0 || saved > amount) { haptic("error"); alert("Проверь сумму накоплений."); return; }
+
+  var g = { id: editingGoal !== null ? editingGoal : id(), name: name, amount: amount, saved: saved };
+  if (editingGoal !== null) {
+    var found = false;
+    for (var i = 0; i < data.goals.length; i++) {
+      if (String(data.goals[i].id) === editingGoal) { data.goals[i] = g; found = true; break; }
+    }
+    if (!found) data.goals.push(g);
+  } else data.goals.push(g);
+
+  save();
+  checkAchievements();
+  closeModal("goalModal");
+  haptic("success");
+  toast(editingGoal !== null ? "Цель обновлена" : "Цель добавлена");
+  editingGoal = null;
+  render();
+}
+window.saveGoal = saveGoal;
+
+function deleteGoal() {
+  if (editingGoal === null) return;
+  if (!confirm("Удалить цель?")) return;
+  data.goals = data.goals.filter(function (x) { return String(x.id) !== editingGoal; });
+  save();
+  closeModal("goalModal");
+  haptic("warning");
+  toast("Цель удалена");
+  editingGoal = null;
+  render();
+}
+window.deleteGoal = deleteGoal;
+
+function fundGoal(gid) {
+  var g = null;
+  for (var i = 0; i < data.goals.length; i++) {
+    if (String(data.goals[i].id) === String(gid)) { g = data.goals[i]; break; }
+  }
+  if (!g) return;
+  var n = Number(prompt("Сколько добавить к накоплениям?"));
+  if (!Number.isFinite(n) || n <= 0) return;
+  g.saved = Math.min(g.amount, g.saved + n);
+  save();
+  checkAchievements();
+  haptic("success");
+  toast(g.saved >= g.amount ? "Цель достигнута! 🏆" : "Накопления обновлены");
+  render();
+}
+window.fundGoal = fundGoal;
+
+function goalHTML(g) {
+  var p = Math.min(100, (g.saved / g.amount) * 100);
+  var done = g.saved >= g.amount;
+  var gid = String(g.id);
+  return '<div class="goal">' +
+    '<div class="row"><b>🎯 ' + esc(g.name) + (done ? ' <span class="badge green">готово</span>' : "") +
+    '</b><b class="green">' + p.toFixed(0) + "%</b></div>" +
+    '<p class="goalmeta">' + money(g.saved) + " из " + money(g.amount) +
+    " · осталось " + money(Math.max(0, g.amount - g.saved)) + "</p>" +
+    '<div class="progress"><div style="width:' + p + '%"></div></div>' +
+    '<div class="goalactions">' +
+      '<button class="btn smallbtn" type="button" onclick="openGoal(\'' + esc(gid) + '\')">✎ Редактировать</button>' +
+      '<button class="btn greenbtn smallbtn" type="button" onclick="fundGoal(\'' + esc(gid) + '\')">＋ Пополнить</button>' +
+    "</div></div>";
+}
+
+function renderGoals() {
+  $("goalsList").innerHTML = data.goals.map(goalHTML).join("") ||
+    '<div class="empty">Пока нет целей.</div>';
+  $("homeGoals").innerHTML = data.goals.slice(0, 2).map(goalHTML).join("") ||
+    '<div class="empty">Добавь финансовую цель.</div>';
+}
+
+/* ========== CATEGORY LIMITS — edit / delete ========== */
+function openLimit(lid) {
+  editingLimit = (lid === undefined || lid === null) ? null : String(lid);
+  var lim = null;
+  if (editingLimit !== null) {
+    for (var i = 0; i < data.limits.length; i++) {
+      if (String(data.limits[i].id) === editingLimit) { lim = data.limits[i]; break; }
+    }
+  }
+  $("limitTitle").textContent = lim ? "Изменить лимит" : "Новый лимит категории";
+  $("limitCategory").innerHTML = expCats.map(function (c) {
+    return '<option value="' + esc(c) + '">' + esc(c) + "</option>";
+  }).join("");
+  if (lim) {
+    $("limitCategory").value = lim.category;
+    $("limitAmount").value = lim.amount;
+  } else {
+    $("limitAmount").value = "";
+  }
+  $("deleteLimitBtn").style.display = lim ? "block" : "none";
+  openModal("limitModal");
+}
+window.openLimit = openLimit;
+
+function saveLimit() {
+  var category = $("limitCategory").value;
+  var amount = Number($("limitAmount").value);
+  if (!(amount > 0)) { haptic("error"); alert("Лимит должен быть больше нуля."); return; }
+
+  // one limit per category
+  for (var i = 0; i < data.limits.length; i++) {
+    if (data.limits[i].category === category && String(data.limits[i].id) !== editingLimit) {
+      haptic("error");
+      alert("Лимит для этой категории уже есть. Отредактируй существующий.");
+      return;
+    }
+  }
+
+  var lim = {
+    id: editingLimit !== null ? editingLimit : id(),
+    category: category,
+    amount: amount
+  };
+
+  if (editingLimit !== null) {
+    var found = false;
+    for (var j = 0; j < data.limits.length; j++) {
+      if (String(data.limits[j].id) === editingLimit) {
+        data.limits[j] = lim;
+        found = true;
+        break;
+      }
+    }
+    if (!found) data.limits.push(lim);
+  } else {
+    data.limits.push(lim);
+  }
+
+  save();
+  checkAchievements();
+  closeModal("limitModal");
+  haptic("success");
+  toast("Лимит сохранён");
+  editingLimit = null;
+  render();
+}
+window.saveLimit = saveLimit;
+
+function deleteLimit() {
+  if (editingLimit === null) return;
+  if (!confirm("Удалить лимит?")) return;
+  data.limits = data.limits.filter(function (x) { return String(x.id) !== editingLimit; });
+  save();
+  closeModal("limitModal");
+  haptic("warning");
+  toast("Лимит удалён");
+  editingLimit = null;
+  render();
+}
+window.deleteLimit = deleteLimit;
+
+function limitHTML(lim) {
+  var spentCat = sum(expenses(monthOps()).filter(function (o) {
+    return o.category === lim.category;
+  }));
+  var left = lim.amount - spentCat;
+  var pct = Math.min(100, (spentCat / lim.amount) * 100);
+  var cls = "", status = "";
+  if (pct >= 100) {
+    cls = "danger";
+    status = '<span class="red">Лимит превышен на ' + money(Math.abs(left)) + "</span>";
+  } else if (pct >= 80) {
+    cls = "warn";
+    status = '<span class="warn">Осталось ' + money(left) + " (почти исчерпан)</span>";
+  } else {
+    status = '<span class="green">Осталось ' + money(left) + "</span>";
+  }
+  var lid = String(lim.id);
+  return '<div class="limit-card">' +
+    '<div class="limit-row"><b>' + (emoji[lim.category] || "📦") + " " + esc(lim.category) +
+    "</b><b>" + money(spentCat) + " / " + money(lim.amount) + "</b></div>" +
+    '<div class="progress ' + cls + '"><div style="width:' + pct + '%"></div></div>' +
+    '<div class="limit-status">' + status + "</div>" +
+    '<div class="goalactions">' +
+      '<button class="btn smallbtn" type="button" onclick="openLimit(\'' + esc(lid) + '\')">✎ Редактировать</button>' +
+      '<button class="btn redbtn smallbtn" type="button" onclick="quickDeleteLimit(\'' + esc(lid) + '\')">🗑 Удалить</button>' +
+    "</div></div>";
+}
+
+function quickDeleteLimit(lid) {
+  if (!confirm("Удалить лимит?")) return;
+  data.limits = data.limits.filter(function (x) { return String(x.id) !== String(lid); });
+  save();
+  haptic("warning");
+  toast("Лимит удалён");
+  render();
+}
+window.quickDeleteLimit = quickDeleteLimit;
+
+function renderLimits() {
+  var html = data.limits.map(limitHTML).join("") ||
+    '<div class="empty">Лимиты категорий не заданы.</div>';
+  $("limitsList").innerHTML = html;
+  $("homeLimits").innerHTML = data.limits.length
+    ? data.limits.slice(0, 3).map(limitHTML).join("")
+    : '<div class="empty">Добавь лимит на категорию.</div>';
+}
+
+/* ========== Budget / Forecast ========== */
+function renderBudget() {
+  var r = data.ratios;
+  var s = salary();
+  var n = s * r.need / 100, w = s * r.want / 100, sv = s * r.save / 100;
+  var ex = expenses(monthOps());
+  var ns = sum(ex.filter(function (o) { return needCats.indexOf(o.category) >= 0; }));
+  var ws = sum(ex.filter(function (o) {
+    return needCats.indexOf(o.category) < 0 && o.category !== "Накопления";
+  }));
+  var daysLeft = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
+    - new Date().getDate() + 1;
+  var left = Math.max(0, s * spendRatio() - spent());
+
+  $("ratioLabel").textContent = r.need + " / " + r.want + " / " + r.save;
+  $("needPct").textContent = r.need;
+  $("wantPct").textContent = r.want;
+  $("savePct").textContent = r.save;
+  $("spendPct").textContent = r.need + r.want;
+  $("daily").textContent = money(left / Math.max(1, daysLeft));
+  $("weekly").textContent = money(left / Math.min(7, Math.max(1, daysLeft)));
+  $("budgetLeft").textContent = money(left);
+  $("budgetInfo").textContent = "Зарплата: " + money(s) + " · расходы: " + money(spent()) +
+    " · до конца месяца " + daysLeft + " дн.";
+  $("needAmount").textContent = money(n);
+  $("wantAmount").textContent = money(w);
+  $("saveAmount").textContent = money(sv);
+  $("needText").textContent = "Потрачено: " + money(ns);
+  $("wantText").textContent = "Потрачено: " + money(ws);
+  $("saveText").textContent = "Рекомендуется накопить: " + money(sv);
+  $("needBar").style.width = (n ? Math.min(100, ns / n * 100) : 0) + "%";
+  $("wantBar").style.width = (w ? Math.min(100, ws / w * 100) : 0) + "%";
+  var ss = sum(ex.filter(function (o) { return o.category === "Накопления"; }));
+  $("saveBar").style.width = (sv ? Math.min(100, ss / sv * 100) : 0) + "%";
+}
+
+function renderForecast() {
+  var a = spent();
+  var elapsed = new Date().getDate();
+  var days = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+  var f = a / Math.max(1, elapsed) * days;
+  var p = salary() - f;
+  $("forecastExpenses").textContent = money(f);
+  $("forecastBalance").textContent = money(p);
+  $("forecastNote").textContent = salary() === 0
+    ? "Добавь зарплату с категорией «Заработная плата», чтобы получить прогноз."
+    : "Оценка основана на среднем темпе расходов за этот месяц.";
+}
+
+/* ========== Stats ========== */
+function chart(t) {
+  chartType = t;
+  $("pieButton").classList.toggle("active", t === "pie");
+  $("barButton").classList.toggle("active", t === "bar");
+  haptic("light");
+  renderChart();
+}
+window.chart = chart;
+
+function renderChart() {
+  var o = {};
+  expenses(monthOps()).forEach(function (x) {
+    o[x.category] = (o[x.category] || 0) + Number(x.amount);
+  });
+  var a = Object.keys(o).map(function (k) { return [k, o[k]]; })
+    .sort(function (x, y) { return y[1] - x[1]; });
+  var total = a.reduce(function (s, x) { return s + x[1]; }, 0);
+
+  if (!a.length) {
+    $("chartArea").innerHTML = '<div class="empty">Добавь расходы, чтобы увидеть статистику.</div>';
+    $("topCats").innerHTML = '<div class="empty">Нет данных.</div>';
+    return;
+  }
+
+  var legend = a.map(function (item, i) {
+    return '<div class="legendrow"><span><i class="dot" style="background:' +
+      colors[i % colors.length] + '"></i>' + esc(item[0]) +
+      "</span><b>" + money(item[1]) + "</b></div>";
+  }).join("");
+
+  if (chartType === "pie") {
+    var p = 0;
+    var st = a.map(function (x, i) {
+      var z = p;
+      p += x[1] / total * 100;
+      return colors[i % colors.length] + " " + z + "% " + p + "%";
+    }).join(",");
+    $("chartArea").innerHTML = '<div class="pie" style="background:conic-gradient(' + st +
+      ')"></div>' + legend +
+      '<div class="legendrow"><b>Всего</b><b>' + money(total) + "</b></div>";
+  } else {
+    var max = Math.max.apply(null, a.map(function (x) { return x[1]; }));
+    $("chartArea").innerHTML = a.map(function (item, i) {
+      return '<div style="margin:14px 0"><div class="row" style="font-size:12px;margin-bottom:6px">' +
+        "<span>" + esc(item[0]) + "</span><b>" + money(item[1]) + "</b></div>" +
+        '<div class="bar"><div style="width:' + (item[1] / max * 100) + "%;background:" +
+        colors[i % colors.length] + '"></div></div></div>';
+    }).join("");
+  }
+
+  $("topCats").innerHTML = a.slice(0, 5).map(function (item, i) {
+    return '<div class="legendrow"><span>' + (i + 1) + ". " + (emoji[item[0]] || "") +
+      " " + esc(item[0]) + '</span><b class="red">' + money(item[1]) + "</b></div>";
+  }).join("") + '<div class="legendrow"><b>Всего расходов</b><b>' + money(total) + "</b></div>";
+}
+
+function renderTrend() {
+  var now = new Date(), months = [], i;
+  for (i = 5; i >= 0; i--) {
+    var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    var key = fmt(d).slice(0, 7);
+    var exp = sum(expenses(data.ops.filter(function (o) { return mk(dayOf(o)) === key; })));
+    months.push({
+      label: d.toLocaleDateString("ru-RU", { month: "short" }),
+      exp: exp
+    });
+  }
+  var max = Math.max.apply(null, months.map(function (m) { return m.exp; }).concat([1]));
+  $("trendBars").innerHTML = months.map(function (m) {
+    return '<div class="trend-bar" style="height:' + Math.max(4, m.exp / max * 100) +
+      '%" title="' + money(m.exp) + '"></div>';
+  }).join("");
+  $("trendLabels").innerHTML = months.map(function (m) {
+    return "<span>" + m.label + "</span>";
+  }).join("");
+}
+
+function renderScore() {
+  var s = salary(), e = spent(), ratio = s > 0 ? e / s : 0;
+  var score = 100, text = "", cls = "good";
+  if (s === 0) {
+    score = "—";
+    text = "Добавь зарплату, чтобы получить оценку.";
+    cls = "";
+  } else {
+    if (ratio > 1) score -= 40;
+    else if (ratio > 0.8) score -= 20;
+    else if (ratio > 0.6) score -= 10;
+    else if (ratio < 0.5) score += 5;
+    var sav = sum(expenses(monthOps()).filter(function (o) { return o.category === "Накопления"; }));
+    if (sav >= s * data.ratios.save / 100 * 0.8) score += 10;
+    data.limits.forEach(function (lim) {
+      var sc = sum(expenses(monthOps()).filter(function (o) { return o.category === lim.category; }));
+      if (sc > lim.amount) score -= 10;
+    });
+    score = Math.max(0, Math.min(100, score));
+    if (score >= 80) { cls = "good"; text = "Отлично! Ты хорошо контролируешь финансы."; }
+    else if (score >= 55) { cls = "mid"; text = "Неплохо, но есть куда расти. Следи за лимитами."; }
+    else { cls = "bad"; text = "Бюджет под давлением. Пересмотри расходы."; }
+  }
+  var el = $("scoreCircle");
+  el.textContent = score;
+  el.className = "score-circle " + cls;
+  $("scoreText").textContent = text;
+}
+
+function renderStats() {
+  var m = monthOps();
+  var inc = sum(incomes(m));
+  var ex = sum(expenses(m));
+  var now = new Date();
+  var lk = fmt(new Date(now.getFullYear(), now.getMonth() - 1, 1)).slice(0, 7);
+  var last = sum(expenses(data.ops.filter(function (o) { return mk(dayOf(o)) === lk; })));
+
+  $("statIncome").textContent = money(inc);
+  $("statExpense").textContent = money(ex);
+  $("thisMonth").textContent = money(ex);
+  $("lastMonth").textContent = money(last);
+  if (last === 0) {
+    $("compare").textContent = ex ? "В прошлом месяце нет записанных расходов." : "Пока нечего сравнивать.";
+  } else if (ex > last) {
+    $("compare").textContent = "Расходы выросли на " + money(ex - last) + ".";
+  } else if (ex < last) {
+    $("compare").textContent = "Расходы снизились на " + money(last - ex) + ".";
+  } else {
+    $("compare").textContent = "Расходы не изменились.";
+  }
+  renderChart();
+  renderTrend();
+  renderScore();
+}
+
+/* ========== Calendar ========== */
+function moveMonth(n) {
+  calDate = new Date(calDate.getFullYear(), calDate.getMonth() + n, 1);
+  haptic("light");
+  renderCalendar();
+}
+window.moveMonth = moveMonth;
+
+function selectDay(s) {
+  selectedDay = s;
+  haptic("light");
+  renderCalendar();
+}
+window.selectDay = selectDay;
+
+function renderCalendar() {
+  var y = calDate.getFullYear(), m = calDate.getMonth();
+  $("calTitle").textContent = calDate.toLocaleDateString("ru-RU", { month: "long", year: "numeric" });
+
+  var daySpend = {};
+  data.ops.forEach(function (o) {
+    if (o.type !== "expense") return;
+    var d = dayOf(o);
+    if (mk(d) !== y + "-" + String(m + 1).padStart(2, "0")) return;
+    daySpend[d] = (daySpend[d] || 0) + Number(o.amount);
+  });
+  var amounts = Object.keys(daySpend).map(function (k) { return daySpend[k]; });
+  amounts.sort(function (a, b) { return b - a; });
+  var threshold = amounts.length ? amounts[Math.min(2, amounts.length - 1)] : Infinity;
+
+  var h = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map(function (x) {
+    return '<div class="weekday">' + x + "</div>";
+  }).join("");
+  var f = new Date(y, m, 1).getDay();
+  f = f === 0 ? 7 : f;
+  var i;
+  for (i = 1; i < f; i++) h += "<div></div>";
+
+  var daysInMonth = new Date(y, m + 1, 0).getDate();
+  for (var d = 1; d <= daysInMonth; d++) {
+    var s = y + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+    var dayList = data.ops.filter(function (o) { return dayOf(o) === s; });
+    var dayInc = sum(incomes(dayList));
+    var dayExp = sum(expenses(dayList));
+    var isBig = dayExp > 0 && dayExp >= threshold && threshold > 0;
+    var sumHtml = "";
+    if (dayInc || dayExp) {
+      sumHtml = '<div class="day-sum">';
+      if (dayInc) sumHtml += '<span class="green">+' + (dayInc / 1000).toFixed(dayInc >= 10000 ? 0 : 1) + "k</span> ";
+      if (dayExp) sumHtml += '<span class="red">−' + (dayExp / 1000).toFixed(dayExp >= 10000 ? 0 : 1) + "k</span>";
+      sumHtml += "</div>";
+    }
+    h += '<button type="button" class="day' +
+      (s === selectedDay ? " selected" : "") +
+      (isBig ? " big-spend" : "") +
+      "\" onclick=\"selectDay('" + s + "')\">" + d + sumHtml + "</button>";
+  }
+  $("calendar").innerHTML = h;
+  renderDayOps();
+}
+
+function renderDayOps() {
+  $("selectedTitle").textContent = nice(selectedDay);
+  var dayList = data.ops.filter(function (o) { return dayOf(o) === selectedDay; });
+  var dayInc = sum(incomes(dayList));
+  var dayExp = sum(expenses(dayList));
+  $("daySummary").textContent = dayList.length
+    ? "Доход: " + money(dayInc) + " · Расход: " + money(dayExp)
+    : "";
+  $("dayOps").innerHTML = dayList.map(opHTML).join("") ||
+    '<div class="empty">Нет операций за этот день.</div>';
+}
+
+/* ========== Payments ========== */
+function openPayment(pid) {
+  editingPayment = (pid === undefined || pid === null) ? null : String(pid);
+  var p = null;
+  if (editingPayment !== null) {
+    for (var i = 0; i < data.payments.length; i++) {
+      if (String(data.payments[i].id) === editingPayment) { p = data.payments[i]; break; }
+    }
+  }
+  $("paymentTitle").textContent = p ? "Изменить платёж" : "Новый повторяющийся платёж";
+  $("payName").value = p ? p.name : "";
+  $("payAmount").value = p ? p.amount : "";
+  $("payCategory").value = p ? p.category : "Жильё";
+  $("payFrequency").value = p ? p.frequency : "monthly";
+  $("payDate").value = p ? p.nextDate : today();
+  $("deletePaymentBtn").style.display = p ? "block" : "none";
+  openModal("paymentModal");
+}
+window.openPayment = openPayment;
+
+function savePayment() {
+  var name = $("payName").value.trim();
+  var amount = Number($("payAmount").value);
+  var category = $("payCategory").value;
+  var frequency = $("payFrequency").value;
+  var nextDate = $("payDate").value;
+  if (!name) { haptic("error"); alert("Введи название платежа."); return; }
+  if (!(amount > 0)) { haptic("error"); alert("Проверь сумму."); return; }
+  if (!nextDate) { haptic("error"); alert("Выбери дату."); return; }
+
+  var p = {
+    id: editingPayment !== null ? editingPayment : id(),
+    name: name, amount: amount, category: category,
+    frequency: frequency, nextDate: nextDate
+  };
+  if (editingPayment !== null) {
+    var found = false;
+    for (var i = 0; i < data.payments.length; i++) {
+      if (String(data.payments[i].id) === editingPayment) {
+        data.payments[i] = p; found = true; break;
+      }
+    }
+    if (!found) data.payments.push(p);
+  } else data.payments.push(p);
+
+  save();
+  checkAchievements();
+  closeModal("paymentModal");
+  haptic("success");
+  toast(editingPayment !== null ? "Платёж обновлён" : "Платёж добавлен");
+  editingPayment = null;
+  render();
+}
+window.savePayment = savePayment;
+
+function deletePayment() {
+  if (editingPayment === null) return;
+  if (!confirm("Удалить платёж?")) return;
+  data.payments = data.payments.filter(function (x) { return String(x.id) !== editingPayment; });
+  save();
+  closeModal("paymentModal");
+  haptic("warning");
+  toast("Платёж удалён");
+  editingPayment = null;
+  render();
+}
+window.deletePayment = deletePayment;
+
+function payNow(pid) {
+  var p = null;
+  for (var i = 0; i < data.payments.length; i++) {
+    if (String(data.payments[i].id) === String(pid)) { p = data.payments[i]; break; }
+  }
+  if (!p || !confirm("Записать оплату «" + p.name + "» на " + money(p.amount) + "?")) return;
+
+  data.ops.push({
+    id: id(), type: "expense", amount: p.amount,
+    description: p.name, category: p.category,
+    day: p.nextDate, date: new Date(p.nextDate + "T12:00:00").toISOString()
+  });
+  var d = dateObj(p.nextDate);
+  if (p.frequency === "weekly") d.setDate(d.getDate() + 7);
+  else if (p.frequency === "monthly") d.setMonth(d.getMonth() + 1);
+  else d.setFullYear(d.getFullYear() + 1);
+  p.nextDate = fmt(d);
+  save();
+  checkAchievements();
+  haptic("success");
+  toast("Оплата записана");
+  render();
+}
+window.payNow = payNow;
+
+function renderPayments() {
+  $("paymentsList").innerHTML = data.payments.map(function (p) {
+    var isOverdue = p.nextDate <= today();
+    var daysUntil = Math.ceil((dateObj(p.nextDate) - new Date()) / 86400000);
+    var badge = "";
+    if (isOverdue) badge = '<span class="badge">пора платить</span>';
+    else if (daysUntil <= 3) badge = '<span class="badge orange">скоро</span>';
+    var freq = p.frequency === "weekly" ? "Еженедельно" :
+      p.frequency === "yearly" ? "Ежегодно" : "Ежемесячно";
+    var pid = String(p.id);
+    return '<div class="goal">' +
+      '<div class="row"><b>' + esc(p.name) + badge + "</b><b>" + money(p.amount) + "</b></div>" +
+      '<p class="goalmeta">' + esc(p.category) + " · " + freq + "</p>" +
+      '<p class="small">Следующая оплата: ' + nice(p.nextDate) + "</p>" +
+      '<div class="goalactions">' +
+        '<button class="btn greenbtn smallbtn" type="button" onclick="payNow(\'' + esc(pid) + '\')">✓ Оплатить</button>' +
+        '<button class="btn smallbtn" type="button" onclick="openPayment(\'' + esc(pid) + '\')">✎ Изменить</button>' +
+      "</div></div>";
+  }).join("") || '<div class="empty">Добавь регулярные платежи.</div>';
+}
+
+/* ========== Achievements ========== */
+function unlock(aid) {
+  if (data.achievements[aid]) return false;
+  data.achievements[aid] = today();
+  return true;
+}
+function checkAchievements() {
+  var newly = [];
+  if (data.ops.length >= 1 && unlock("first_op")) newly.push("first_op");
+  if (data.ops.length >= 10 && unlock("ten_ops")) newly.push("ten_ops");
+  if (data.ops.length >= 50 && unlock("fifty_ops")) newly.push("fifty_ops");
+  if (data.goals.length >= 1 && unlock("first_goal")) newly.push("first_goal");
+  if (data.goals.some(function (g) { return g.saved >= g.amount; }) && unlock("goal_done")) newly.push("goal_done");
+  if (data.limits.length >= 1 && unlock("limit_set")) newly.push("limit_set");
+  if (data.payments.length >= 1 && unlock("payment_set")) newly.push("payment_set");
+  if (expenses(data.ops).some(function (o) { return o.category === "Накопления"; }) && unlock("saver")) newly.push("saver");
+  var s = salary();
+  if (s > 0 && spent() <= s * spendRatio() && spent() > 0 && unlock("budget_keeper")) newly.push("budget_keeper");
+  if (s > 0 && spent() > 0 && spent() < s * 0.5 && unlock("under_budget")) newly.push("under_budget");
+
+  var daysWithOps = {};
+  data.ops.forEach(function (o) {
+    var d = dayOf(o);
+    if (!daysWithOps[d]) daysWithOps[d] = { inc: false, exp: false };
+    if (o.type === "income") daysWithOps[d].inc = true;
+    else daysWithOps[d].exp = true;
+  });
+  var hasNoSpend = Object.keys(daysWithOps).some(function (k) {
+    return daysWithOps[k].inc && !daysWithOps[k].exp;
+  });
+  if (hasNoSpend && unlock("no_spend_day")) newly.push("no_spend_day");
+
+  var sortedDays = [];
+  data.ops.forEach(function (o) {
+    var d = dayOf(o);
+    if (sortedDays.indexOf(d) < 0) sortedDays.push(d);
+  });
+  sortedDays.sort();
+  var streak = 1, maxStreak = 1;
+  for (var i = 1; i < sortedDays.length; i++) {
+    var prev = dateObj(sortedDays[i - 1]), cur = dateObj(sortedDays[i]);
+    if ((cur - prev) / 86400000 === 1) {
+      streak++;
+      if (streak > maxStreak) maxStreak = streak;
+    } else streak = 1;
+  }
+  if (maxStreak >= 7 && unlock("week_streak")) newly.push("week_streak");
+
+  if (newly.length) {
+    save();
+    var names = newly.map(function (aid) {
+      for (var j = 0; j < ACH_DEFS.length; j++) {
+        if (ACH_DEFS[j].id === aid) return ACH_DEFS[j].name;
+      }
+      return null;
+    }).filter(Boolean);
+    if (names.length) toast("🏆 " + names.join(", "));
+  }
+}
+
+function renderAchievements() {
+  $("achsList").innerHTML = ACH_DEFS.map(function (a) {
+    var unlocked = !!data.achievements[a.id];
+    return '<div class="ach-card' + (unlocked ? " unlocked" : "") + '">' +
+      '<div class="ach-icon">' + a.icon + "</div>" +
+      '<div class="ach-name">' + esc(a.name) + "</div>" +
+      '<div class="ach-desc">' + (unlocked ? "Открыто " + nice(data.achievements[a.id]) : esc(a.desc)) +
+      "</div></div>";
+  }).join("");
+
+  var unlocked = ACH_DEFS.filter(function (a) { return data.achievements[a.id]; });
+  var show = unlocked.length ? unlocked.slice(-4) : ACH_DEFS.slice(0, 4);
+  $("homeAchs").innerHTML = '<div class="ach-grid">' + show.map(function (a) {
+    var u = !!data.achievements[a.id];
+    return '<div class="ach-card' + (u ? " unlocked" : "") + '">' +
+      '<div class="ach-icon">' + a.icon + "</div>" +
+      '<div class="ach-name">' + esc(a.name) + "</div></div>";
+  }).join("") + "</div>";
+}
+
+/* ========== Settings ========== */
+function openSettings() {
+  $("setNeed").value = data.ratios.need;
+  $("setWant").value = data.ratios.want;
+  $("setSave").value = data.ratios.save;
+  $("storageInfo").textContent = (tg && tg.CloudStorage)
+    ? "Telegram CloudStorage доступен."
+    : "CloudStorage недоступен — данные только локально.";
+  openModal("settingsModal");
+}
+window.openSettings = openSettings;
+
+function saveRatios() {
+  var need = Number($("setNeed").value);
+  var want = Number($("setWant").value);
+  var saveP = Number($("setSave").value);
+  if (![need, want, saveP].every(function (n) { return Number.isFinite(n) && n >= 0; })) {
+    haptic("error"); alert("Введи корректные проценты."); return;
+  }
+  if (need + want + saveP !== 100) {
+    haptic("error"); alert("Сумма процентов должна быть 100."); return;
+  }
+  data.ratios = { need: need, want: want, save: saveP };
+  save();
+  haptic("success");
+  toast("Проценты сохранены");
+  render();
+}
+window.saveRatios = saveRatios;
+
+function exportData() {
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "finance-planner-" + today() + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+  haptic("success");
+  toast("Файл экспортирован");
+}
+window.exportData = exportData;
+
+function importData() {
+  var input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json,application/json";
+  input.onchange = function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        var parsed = JSON.parse(ev.target.result);
+        if (!parsed || !Array.isArray(parsed.ops)) {
+          haptic("error"); alert("Неверный формат файла."); return;
+        }
+        if (!confirm("Импорт заменит текущие данные. Продолжить?")) return;
+        data = {
+          ops: parsed.ops || [], goals: parsed.goals || [],
+          payments: parsed.payments || [], limits: parsed.limits || [],
+          ratios: parsed.ratios || { need: 50, want: 30, save: 20 },
+          achievements: parsed.achievements || {}, firstUse: parsed.firstUse || today()
+        };
+        save();
+        checkAchievements();
+        haptic("success");
+        toast("Данные импортированы");
+        closeModal("settingsModal");
+        render();
+      } catch (err) {
+        haptic("error");
+        alert("Ошибка чтения файла.");
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+window.importData = importData;
+
+function syncCloud() {
+  if (!tg || !tg.CloudStorage) {
+    haptic("error");
+    toast("CloudStorage недоступен");
+    return;
+  }
+  loadFromCloud(function (ok) {
+    if (ok) {
+      haptic("success");
+      toast("Данные загружены из Telegram");
+      render();
+    } else {
+      save();
+      haptic("success");
+      toast("Данные отправлены в CloudStorage");
+    }
+  });
+}
+window.syncCloud = syncCloud;
+
+function clearAllData() {
+  if (!confirm("Удалить ВСЕ операции, цели, платежи и лимиты?")) return;
+  if (!confirm("Точно удалить всё? Это нельзя отменить.")) return;
+  data = defaultData();
+  save();
+  haptic("warning");
+  toast("Все данные удалены");
+  closeModal("settingsModal");
+  render();
+}
+window.clearAllData = clearAllData;
+
+/* ========== Main render ========== */
+function render() {
+  $("headingDate").textContent = new Date().toLocaleDateString("ru-RU", {
+    weekday: "long", day: "numeric", month: "long"
+  });
+  var totalInc = sum(incomes(data.ops));
+  var totalExp = sum(expenses(data.ops));
+  $("balance").textContent = money(totalInc - totalExp);
+  $("incomeTotal").textContent = money(totalInc);
+  $("expenseTotal").textContent = money(totalExp);
+
+  renderBudget();
+  renderOps();
+  renderGoals();
+  renderLimits();
+  renderForecast();
+  renderStats();
+  renderCalendar();
+  renderPayments();
+  renderAchievements();
+}
+
+/* Init */
+$("opType").addEventListener("change", function () { fillCategories(); });
+
+["opModal", "goalModal", "paymentModal", "limitModal", "settingsModal"].forEach(function (name) {
+  $(name).addEventListener("click", function (e) {
+    if (e.target === e.currentTarget) closeModal(name);
+  });
+});
+
+fillCategories();
+
+if (tg && tg.CloudStorage) {
+  loadFromCloud(function () {
+    save();
+    checkAchievements();
+    render();
+  });
+} else {
+  save();
+  checkAchievements();
+  render();
+}
+
+})();
+</script>
+</body>
+</html>
