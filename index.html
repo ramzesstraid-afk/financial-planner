@@ -83,6 +83,11 @@ header{margin-bottom:20px}h1{font-size:25px;margin:0}h2{font-size:19px;margin:0}
 .trend-bars{display:flex;align-items:flex-end;gap:4px;height:80px;margin:12px 0}
 .trend-bar{flex:1;background:var(--red);border-radius:4px 4px 0 0;min-height:4px}
 .trend-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+
+.legendrow.clickable,.metric.clickable{cursor:pointer}
+.legendrow.clickable:active,.metric.clickable:active{opacity:.7}
+.cat-option{display:flex;align-items:center;gap:8px}
+#customCatField{display:none;margin-top:8px}
 </style>
 </head>
 <body>
@@ -102,8 +107,8 @@ header{margin-bottom:20px}h1{font-size:25px;margin:0}h2{font-size:19px;margin:0}
     </div>
   </div>
   <div class="grid2">
-    <div class="metric"><div class="label">Доходы</div><div class="value green" id="incomeTotal">0 ₽</div></div>
-    <div class="metric"><div class="label">Расходы</div><div class="value red" id="expenseTotal">0 ₽</div></div>
+    <div class="metric clickable" onclick="openOpsFilter('income')"><div class="label">Доходы · нажми чтобы править</div><div class="value green" id="incomeTotal">0 ₽</div></div>
+    <div class="metric clickable" onclick="openOpsFilter('expense')"><div class="label">Расходы · нажми чтобы править</div><div class="value red" id="expenseTotal">0 ₽</div></div>
   </div>
   <div class="section"><h2>Лимиты расходов</h2><span class="small" id="ratioLabel">50 / 30 / 20</span></div>
   <div class="grid2">
@@ -135,6 +140,7 @@ header{margin-bottom:20px}h1{font-size:25px;margin:0}h2{font-size:19px;margin:0}
     <p class="note">Учитываются зарплатные поступления текущего месяца. Лимит на расходы — <span id="spendPct">80</span>% зарплаты за вычетом уже записанных расходов.</p>
   </div>
   <div class="section"><h2>Лимиты категорий</h2><button class="btn smallbtn" type="button" onclick="openLimit()">＋ Лимит</button></div>
+  <p class="note">Лимиты заполняются сами от зарплаты по правилу 50/30/20. Можно изменить вручную.</p>
   <div id="homeLimits"></div>
   <div class="section"><h2>Последние операции</h2><button class="btn smallbtn" type="button" onclick="page('operations')">Все</button></div>
   <div id="homeOps"></div>
@@ -225,6 +231,7 @@ header{margin-bottom:20px}h1{font-size:25px;margin:0}h2{font-size:19px;margin:0}
   <p class="note">При отметке оплаты создаётся расход и сдвигается дата. Напоминания — бейджами.</p>
   <div id="paymentsList"></div>
   <div class="section" style="margin-top:28px"><h2>Лимиты категорий</h2><button class="btn bluebtn smallbtn" type="button" onclick="openLimit()">＋ Лимит</button></div>
+  <p class="note">Автолимиты: необходимые категории делят 50% зарплаты, желания — 30%. Ручное изменение сохраняется.</p>
   <div id="limitsList"></div>
 </section>
 
@@ -287,7 +294,7 @@ header{margin-bottom:20px}h1{font-size:25px;margin:0}h2{font-size:19px;margin:0}
     <div class="field"><label>Категория</label>
       <select id="payCategory">
         <option>Жильё</option><option>Продукты</option><option>Транспорт</option>
-        <option>Здоровье</option><option>Подписки</option><option>Другое</option>
+        <option>Здоровье</option><option>Подписки</option><option>Долг</option><option>Другое</option>
       </select>
     </div>
     <div class="field"><label>Периодичность</label>
@@ -336,6 +343,20 @@ header{margin-bottom:20px}h1{font-size:25px;margin:0}h2{font-size:19px;margin:0}
     </div>
     <p class="note" style="margin-top:18px">Данные сохраняются локально и (если доступно) в Telegram CloudStorage.</p>
     <p class="note" id="storageInfo" style="margin-top:8px"></p>
+  </div>
+</div>
+
+
+<!-- Category report modal -->
+<div class="modal" id="catReportModal">
+  <div class="modalbox">
+    <div class="modalhead"><h3 id="catReportTitle">Категория</h3><button class="btn smallbtn" type="button" onclick="closeModal('catReportModal')">✕</button></div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="metric"><div class="label">Сумма за месяц</div><div class="value red" id="catReportSum">0 ₽</div></div>
+      <div class="metric"><div class="label">Операций</div><div class="value" id="catReportCount">0</div></div>
+    </div>
+    <div id="catReportOps"></div>
+    <button class="btn bluebtn fullbtn" type="button" style="margin-top:12px" onclick="closeModal('catReportModal');openOp('expense')">＋ Добавить расход</button>
   </div>
 </div>
 
@@ -393,6 +414,7 @@ function readLocal(k, fb) {
 function defaultData() {
   return {
     ops: [], goals: [], payments: [], limits: [],
+    customCats: [],
     ratios: { need: 50, want: 30, save: 20 },
     achievements: {}, firstUse: today()
   };
@@ -406,6 +428,7 @@ if (!data) {
       goals: old.goals || readLocal("financePlannerGoals", []),
       payments: old.payments || [],
       limits: old.limits || [],
+      customCats: old.customCats || [],
       ratios: old.ratios || { need: 50, want: 30, save: 20 },
       achievements: old.achievements || {},
       firstUse: old.firstUse || today()
@@ -417,6 +440,7 @@ if (!Array.isArray(data.ops)) data.ops = [];
 if (!Array.isArray(data.goals)) data.goals = [];
 if (!Array.isArray(data.payments)) data.payments = [];
 if (!Array.isArray(data.limits)) data.limits = [];
+if (!Array.isArray(data.customCats)) data.customCats = [];
 if (!data.ratios) data.ratios = { need: 50, want: 30, save: 20 };
 if (!data.achievements) data.achievements = {};
 if (!data.firstUse) data.firstUse = today();
@@ -443,7 +467,8 @@ function loadFromCloud(cb) {
       if (p && Array.isArray(p.ops)) {
         data = {
           ops: p.ops || [], goals: p.goals || [], payments: p.payments || [],
-          limits: p.limits || [], ratios: p.ratios || { need: 50, want: 30, save: 20 },
+          limits: p.limits || [], customCats: p.customCats || [],
+          ratios: p.ratios || { need: 50, want: 30, save: 20 },
           achievements: p.achievements || {}, firstUse: p.firstUse || today()
         };
         save();
@@ -460,14 +485,14 @@ var editingOp = null, editingGoal = null, editingPayment = null, editingLimit = 
 var filter = "all", chartType = "pie";
 var calDate = new Date(), selectedDay = today();
 
-var incCats = ["Заработная плата", "Подработка", "Подарок", "Инвестиции", "Возврат денег", "Другое"];
-var expCats = ["Продукты", "Еда", "Транспорт", "Развлечения", "Одежда", "Жильё", "Здоровье", "Покупки", "Подписки", "Образование", "Накопления", "Другое"];
-var needCats = ["Продукты", "Еда", "Транспорт", "Жильё", "Здоровье", "Образование"];
+var incCats = ["Заработная плата", "Подработка", "Подарок", "Инвестиции", "Возврат денег", "Долг", "Другое"];
+var expCats = ["Продукты", "Еда", "Транспорт", "Развлечения", "Одежда", "Жильё", "Здоровье", "Покупки", "Подписки", "Образование", "Долг", "Накопления", "Другое"];
+var needCats = ["Продукты", "Еда", "Транспорт", "Жильё", "Здоровье", "Образование", "Долг"];
 var emoji = {
   "Заработная плата": "💼", "Подработка": "🧰", "Продукты": "🛒", "Еда": "🍔",
   "Транспорт": "🚗", "Развлечения": "🎮", "Одежда": "👕", "Жильё": "🏠",
   "Здоровье": "💊", "Покупки": "🛍️", "Подписки": "🔄", "Накопления": "🐷",
-  "Подарок": "🎁", "Инвестиции": "📈", "Возврат денег": "↩️", "Образование": "📚", "Другое": "📦"
+  "Подарок": "🎁", "Инвестиции": "📈", "Возврат денег": "↩️", "Образование": "📚", "Долг": "💳", "Другое": "📦"
 };
 var colors = ["#609cff", "#35d07f", "#c29aff", "#ffc857", "#ff5969", "#43c4c4", "#f59e72", "#9aa5b5", "#df7bc3", "#8cbf6c"];
 var ACH_DEFS = [
@@ -550,14 +575,63 @@ function closeModal(name) {
 window.closeModal = closeModal;
 
 /* ========== OPERATIONS — edit / delete ========== */
+function allExpCats() {
+  var base = expCats.slice();
+  (data.customCats || []).forEach(function (c) {
+    if (base.indexOf(c) < 0 && c !== "Другое") base.splice(base.length - 1, 0, c);
+  });
+  return base;
+}
 function fillCategories(selected) {
   var type = $("opType").value;
-  var list = type === "income" ? incCats : expCats;
+  var list = type === "income" ? incCats.slice() : allExpCats();
   $("opCategory").innerHTML = list.map(function (c) {
-    return '<option value="' + esc(c) + '">' + esc(c) + "</option>";
+    var em = emoji[c] || (type === "income" ? "💰" : "📌");
+    return '<option value="' + esc(c) + '">' + em + " " + esc(c) + "</option>";
   }).join("");
-  if (selected && list.indexOf(selected) >= 0) $("opCategory").value = selected;
+  var sel = selected || "";
+  if (sel && list.indexOf(sel) < 0 && type === "expense") {
+    // custom category not in list yet — add temporarily
+    $("opCategory").innerHTML += '<option value="' + esc(sel) + '">📌 ' + esc(sel) + "</option>";
+  }
+  if (sel) $("opCategory").value = sel;
+  else if (type === "expense") $("opCategory").value = "Другое";
+  toggleCustomCat();
 }
+function toggleCustomCat() {
+  var field = $("customCatField");
+  if (!field) return;
+  var type = $("opType").value;
+  var cat = $("opCategory").value;
+  var show = type === "expense" && cat === "Другое";
+  field.style.display = show ? "block" : "none";
+  if (!show) $("customCatInput").value = "";
+}
+function openOpsFilter(f) {
+  filter = f;
+  page("operations");
+  var btns = document.querySelectorAll("#operations .segment button");
+  btns.forEach(function (b) { b.classList.remove("active"); });
+  if (btns[f === "income" ? 1 : f === "expense" ? 2 : 0]) {
+    btns[f === "income" ? 1 : f === "expense" ? 2 : 0].classList.add("active");
+  }
+  renderOps();
+  toast(f === "income" ? "Доходы — нажми ✎ Изменить у нужной записи" : "Расходы — нажми ✎ Изменить у нужной записи");
+}
+window.openOpsFilter = openOpsFilter;
+
+function openCategoryReport(catName) {
+  var list = expenses(monthOps()).filter(function (o) { return o.category === catName; });
+  var total = sum(list);
+  $("catReportTitle").textContent = (emoji[catName] || "📦") + " " + catName;
+  $("catReportSum").textContent = money(total);
+  $("catReportCount").textContent = String(list.length);
+  $("catReportOps").innerHTML = list.length
+    ? list.sort(function (a, b) { return dayOf(b).localeCompare(dayOf(a)); }).map(opHTML).join("")
+    : '<div class="empty">Нет расходов в этой категории за месяц.</div>';
+  openModal("catReportModal");
+}
+window.openCategoryReport = openCategoryReport;
 
 function openOp(type, oid, dateStr) {
   type = type || "expense";
@@ -575,6 +649,11 @@ function openOp(type, oid, dateStr) {
   $("opDesc").value = o ? o.description : (type === "income" ? "Заработная плата" : "");
   $("opDate").value = o ? dayOf(o) : (dateStr || selectedDay || today());
   $("deleteOpBtn").style.display = o ? "block" : "none";
+  if ($("customCatInput")) $("customCatInput").value = "";
+  // если категория кастомная — показать её
+  if (o && o.type === "expense" && expCats.indexOf(o.category) < 0 && o.category !== "Другое") {
+    fillCategories(o.category);
+  }
   openModal("opModal");
   setTimeout(function () { $("opAmount").focus(); }, 120);
 }
@@ -586,6 +665,18 @@ function saveOp() {
   var description = $("opDesc").value.trim();
   var category = $("opCategory").value;
   var d = $("opDate").value;
+  // своя категория
+  if (type === "expense" && category === "Другое") {
+    var custom = ($("customCatInput") && $("customCatInput").value || "").trim();
+    if (custom) {
+      category = custom;
+      if (!data.customCats) data.customCats = [];
+      if (data.customCats.indexOf(custom) < 0 && expCats.indexOf(custom) < 0) {
+        data.customCats.push(custom);
+      }
+      if (!emoji[custom]) emoji[custom] = "📌";
+    }
+  }
 
   if (!Number.isFinite(amount) || amount <= 0) {
     haptic("error");
@@ -663,7 +754,7 @@ function opHTML(o) {
     "</div>" +
     '<div style="text-align:right">' +
       '<div class="opamount ' + (inc ? "green" : "red") + '">' + (inc ? "+" : "−") + money(o.amount) + "</div>" +
-      '<button class="btn smallbtn" type="button" style="margin-top:5px" onclick="event.stopPropagation();openOp(\'' + t + '\',\'' + esc(oid) + '\')">✎ Изменить</button>' +
+      '<button class="btn bluebtn smallbtn" type="button" style="margin-top:5px" onclick="event.stopPropagation();openOp(\'' + t + '\',\'' + esc(oid) + '\')">✎ Изменить</button>' +
     "</div></div>";
 }
 
@@ -830,7 +921,9 @@ function saveLimit() {
   var lim = {
     id: editingLimit !== null ? editingLimit : id(),
     category: category,
-    amount: amount
+    amount: amount,
+    manual: true,
+    auto: false
   };
 
   if (editingLimit !== null) {
@@ -887,8 +980,9 @@ function limitHTML(lim) {
     status = '<span class="green">Осталось ' + money(left) + "</span>";
   }
   var lid = String(lim.id);
+  var autoBadge = lim.manual ? "" : (lim.auto ? ' <span class="badge orange">авто</span>' : "");
   return '<div class="limit-card">' +
-    '<div class="limit-row"><b>' + (emoji[lim.category] || "📦") + " " + esc(lim.category) +
+    '<div class="limit-row"><b>' + (emoji[lim.category] || "📦") + " " + esc(lim.category) + autoBadge +
     "</b><b>" + money(spentCat) + " / " + money(lim.amount) + "</b></div>" +
     '<div class="progress ' + cls + '"><div style="width:' + pct + '%"></div></div>' +
     '<div class="limit-status">' + status + "</div>" +
@@ -907,6 +1001,82 @@ function quickDeleteLimit(lid) {
   render();
 }
 window.quickDeleteLimit = quickDeleteLimit;
+
+
+/* ========== Auto limits ========== */
+function autoUpdateLimits() {
+  var s = salary();
+  if (s <= 0) return; // без зарплаты нечего распределять
+
+  var r = data.ratios;
+  var needPool = s * r.need / 100;
+  var wantPool = s * r.want / 100;
+
+  // категории с расходами в этом месяце + базовые нужные
+  var spentByCat = {};
+  expenses(monthOps()).forEach(function (o) {
+    spentByCat[o.category] = (spentByCat[o.category] || 0) + Number(o.amount);
+  });
+
+  var needActive = [];
+  var wantActive = [];
+  // все need-категории всегда в пуле
+  needCats.forEach(function (c) {
+    if (needActive.indexOf(c) < 0) needActive.push(c);
+  });
+  // want = остальные из расходов или стандартные
+  var defaultWant = ["Развлечения", "Одежда", "Покупки", "Подписки", "Другое"];
+  Object.keys(spentByCat).forEach(function (c) {
+    if (needCats.indexOf(c) >= 0) {
+      if (needActive.indexOf(c) < 0) needActive.push(c);
+    } else if (c !== "Накопления") {
+      if (wantActive.indexOf(c) < 0) wantActive.push(c);
+    }
+  });
+  defaultWant.forEach(function (c) {
+    if (wantActive.indexOf(c) < 0) wantActive.push(c);
+  });
+  // свои категории
+  (data.customCats || []).forEach(function (c) {
+    if (needCats.indexOf(c) < 0 && c !== "Накопления" && wantActive.indexOf(c) < 0) {
+      wantActive.push(c);
+    }
+  });
+
+  function ensureLimit(cat, amount, auto) {
+    amount = Math.max(100, Math.round(amount / 10) * 10); // округление
+    var existing = null;
+    for (var i = 0; i < data.limits.length; i++) {
+      if (data.limits[i].category === cat) { existing = data.limits[i]; break; }
+    }
+    if (existing) {
+      // не трогаем вручную заданные
+      if (existing.manual) return;
+      // обновляем авто-лимит только если изменился заметно
+      if (Math.abs(existing.amount - amount) > 1) {
+        existing.amount = amount;
+        existing.auto = true;
+      }
+    } else {
+      data.limits.push({
+        id: id(),
+        category: cat,
+        amount: amount,
+        auto: true,
+        manual: false
+      });
+    }
+  }
+
+  // равное деление пулов (просто и понятно)
+  var nNeed = Math.max(1, needActive.length);
+  var nWant = Math.max(1, wantActive.length);
+  var before = JSON.stringify(data.limits);
+  needActive.forEach(function (c) { ensureLimit(c, needPool / nNeed, true); });
+  wantActive.forEach(function (c) { ensureLimit(c, wantPool / nWant, true); });
+  if (JSON.stringify(data.limits) !== before) save();
+}
+
 
 function renderLimits() {
   var html = data.limits.map(limitHTML).join("") ||
@@ -992,7 +1162,7 @@ function renderChart() {
   }
 
   var legend = a.map(function (item, i) {
-    return '<div class="legendrow"><span><i class="dot" style="background:' +
+    return '<div class="legendrow clickable" data-cat="' + esc(item[0]) + '" onclick="openCategoryReport(this.getAttribute(\'data-cat\'))"><span><i class="dot" style="background:' +
       colors[i % colors.length] + '"></i>' + esc(item[0]) +
       "</span><b>" + money(item[1]) + "</b></div>";
   }).join("");
@@ -1010,15 +1180,15 @@ function renderChart() {
   } else {
     var max = Math.max.apply(null, a.map(function (x) { return x[1]; }));
     $("chartArea").innerHTML = a.map(function (item, i) {
-      return '<div style="margin:14px 0"><div class="row" style="font-size:12px;margin-bottom:6px">' +
-        "<span>" + esc(item[0]) + "</span><b>" + money(item[1]) + "</b></div>" +
+      return '<div style="margin:14px 0;cursor:pointer" data-cat="' + esc(item[0]) + '" onclick="openCategoryReport(this.getAttribute(\'data-cat\'))"><div class="row" style="font-size:12px;margin-bottom:6px">' +
+        "<span>" + (emoji[item[0]] || "📌") + " " + esc(item[0]) + "</span><b>" + money(item[1]) + "</b></div>" +
         '<div class="bar"><div style="width:' + (item[1] / max * 100) + "%;background:" +
         colors[i % colors.length] + '"></div></div></div>';
     }).join("");
   }
 
   $("topCats").innerHTML = a.slice(0, 5).map(function (item, i) {
-    return '<div class="legendrow"><span>' + (i + 1) + ". " + (emoji[item[0]] || "") +
+    return '<div class="legendrow clickable" data-cat="' + esc(item[0]) + '" onclick="openCategoryReport(this.getAttribute(\'data-cat\'))"><span>' + (i + 1) + ". " + (emoji[item[0]] || "📌") +
       " " + esc(item[0]) + '</span><b class="red">' + money(item[1]) + "</b></div>";
   }).join("") + '<div class="legendrow"><b>Всего расходов</b><b>' + money(total) + "</b></div>";
 }
@@ -1427,6 +1597,7 @@ function importData() {
         data = {
           ops: parsed.ops || [], goals: parsed.goals || [],
           payments: parsed.payments || [], limits: parsed.limits || [],
+          customCats: parsed.customCats || [],
           ratios: parsed.ratios || { need: 50, want: 30, save: 20 },
           achievements: parsed.achievements || {}, firstUse: parsed.firstUse || today()
         };
@@ -1493,6 +1664,7 @@ function render() {
   renderBudget();
   renderOps();
   renderGoals();
+  autoUpdateLimits();
   renderLimits();
   renderForecast();
   renderStats();
@@ -1503,8 +1675,9 @@ function render() {
 
 /* Init */
 $("opType").addEventListener("change", function () { fillCategories(); });
+$("opCategory").addEventListener("change", function () { toggleCustomCat(); });
 
-["opModal", "goalModal", "paymentModal", "limitModal", "settingsModal"].forEach(function (name) {
+["opModal", "goalModal", "paymentModal", "limitModal", "settingsModal", "catReportModal"].forEach(function (name) {
   $(name).addEventListener("click", function (e) {
     if (e.target === e.currentTarget) closeModal(name);
   });
